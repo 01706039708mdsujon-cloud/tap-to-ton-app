@@ -60,15 +60,16 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Supabase Setup
+        // Supabase Configuration
         const SUPABASE_URL = "https://gnqevgdnkwizeegiwsdc.supabase.co";
-        const SUPABASE_KEY = "sb_secret_oRZsDm7e008pKXEsUHJYdw_5EDPWiCp";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImducWV2Z2Rua3dpemVlZ2l3c2RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0MDkyMDIsImV4cCI6MjEwNDk4NTIwMn0.W4U4_AhCfmYc4lWAjiIZj1VAGfcFWxBUts4UmjKoHZI";
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let user = tg.initDataUnsafe?.user || { id: 123456, username: "TestUser" }; // Fallback for testing
+        // Telegram User Info
+        let user = tg.initDataUnsafe?.user || { id: 123456, username: "TestUser" };
         let currentPoints = 0;
 
-        document.getElementById('user-display').innerText = `@${user.username || user.first_name}`;
+        document.getElementById('user-display').innerText = `@${user.username || user.first_name || 'User'}`;
 
         // Fetch User Data from Supabase
         async function loadUserData() {
@@ -82,9 +83,9 @@
                 currentPoints = data.points;
                 document.getElementById('points').innerText = currentPoints;
             } else {
-                // If new user, insert into DB
+                // Insert new user if not found
                 await supabase.from('users').insert([
-                    { id: user.id, username: user.username || user.first_name, points: 0 }
+                    { id: user.id, username: user.username || user.first_name || 'User', points: 0 }
                 ]);
             }
         }
@@ -97,7 +98,7 @@
                 .eq('id', user.id);
         }
 
-        // Tap Event Handling
+        // Tap Event Listener
         const tapBtn = document.getElementById('tap-btn');
         let saveTimeout;
 
@@ -105,14 +106,14 @@
             currentPoints += 1;
             document.getElementById('points').innerText = currentPoints;
 
-            // Debounce save request to avoid database spam
+            // Debounce save request (saves 1 second after last tap)
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
                 savePoints(currentPoints);
-            }, 1000); // Saves 1 second after last tap
+            }, 1000);
         });
 
-        // Initial Load
+        // Initial Data Load
         loadUserData();
     </script>
 </body>
