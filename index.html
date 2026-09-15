@@ -8,8 +8,9 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Supabase JS Client -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <!-- Monetag Rewarded Interstitial Script -->
-    <script src='//ks31.com/tag.min.js' data-zone='11809090' data-sdk='show_11809090'></script>
+    
+    <!-- Updated Monetag Rewarded Interstitial Script -->
+    <script src='//libtl.com/sdk.js' data-zone='11809090' data-sdk='show_11809090'></script>
     
     <style>
         :root {
@@ -41,29 +42,23 @@
             color: var(--text-secondary);
         }
 
-        /* Marquee Running Headline CSS */
         .marquee-container {
             background: rgba(245, 158, 11, 0.12);
             color: var(--accent-gold);
             padding: 6px 10px;
             font-size: 13px;
             border-bottom: 1px solid #334155;
-            display: flex;
-            align-items: center;
         }
 
         .ad-container {
             width: 100%;
-            min-height: 50px;
+            min-height: 60px;
             background: rgba(255, 255, 255, 0.03);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 10px 0;
-            border-radius: 8px;
-            border: 1px dashed #334155;
-            color: var(--text-secondary);
-            font-size: 12px;
+            margin: 5px 0;
+            overflow: hidden;
         }
 
         .main-content {
@@ -105,8 +100,8 @@
         }
 
         .tap-btn {
-            width: 190px;
-            height: 190px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
             background: radial-gradient(circle at 35% 35%, #ffe066 0%, #f59e0b 50%, #b45309 100%);
             border: 6px solid #fef08a;
@@ -213,20 +208,17 @@
 </head>
 <body>
 
-    <!-- Header Section -->
     <div class="header" id="user-display">Loading User...</div>
 
-    <!-- Running Marquee Headline -->
     <div class="marquee-container">
         <marquee behavior="scroll" direction="left" scrollamount="5">
             🚀 <b>স্বাগতম TapToTon-এ!</b> প্রতি ট্যাপে আয় করুন পয়েন্ট, বন্ধুদের ইনভাইট করে জিতে নিন <b>৫০০ পয়েন্ট বোনাস</b> এবং ভিডিও দেখে পান <b>ইনস্ট্যান্ট ৫০০ পয়েন্ট</b>! 🎁
         </marquee>
     </div>
 
-    <!-- BANNER AD SECTION -->
-    <div class="ad-container">
-        <!-- Monetag Banner Script Placeholder -->
-        <span>[ Monetag Banner Ad Placeholder ]</span>
+    <!-- Monetag Banner Section -->
+    <div class="ad-container" id="monetag-banner">
+        <script src="//libtl.com/sdk.js" data-zone="11809090" async data-cfasync="false"></script>
     </div>
 
     <div class="main-content">
@@ -239,7 +231,6 @@
             
             <button class="tap-btn" id="tap-btn">₿</button>
 
-            <!-- Energy Bar -->
             <div class="energy-box">
                 ⚡ <span id="energy-text">500 / 500</span>
                 <div class="energy-bar-bg">
@@ -258,7 +249,7 @@
             </div>
         </div>
 
-        <!-- Friends / Referral Tab -->
+        <!-- Friends Tab -->
         <div id="tab-ref" class="tab-content">
             <div class="card-box">
                 <div style="font-size: 18px; font-weight: bold; color: var(--accent-gold);">Invite Friends!</div>
@@ -284,10 +275,10 @@
 
     <!-- Bottom Navigation -->
     <div class="navbar">
-        <div class="nav-item active" onclick="switchTab('earn')"><span>⚡</span><span>Earn</span></div>
-        <div class="nav-item" onclick="switchTab('lead')"><span>🏆</span><span>Ranks</span></div>
-        <div class="nav-item" onclick="switchTab('ref')"><span>👥</span><span>Friends</span></div>
-        <div class="nav-item" onclick="switchTab('tasks')"><span>🎯</span><span>Tasks</span></div>
+        <div class="nav-item active" onclick="switchTab(event, 'earn')"><span>⚡</span><span>Earn</span></div>
+        <div class="nav-item" onclick="switchTab(event, 'lead')"><span>🏆</span><span>Ranks</span></div>
+        <div class="nav-item" onclick="switchTab(event, 'ref')"><span>👥</span><span>Friends</span></div>
+        <div class="nav-item" onclick="switchTab(event, 'tasks')"><span>🎯</span><span>Tasks</span></div>
     </div>
 
     <script>
@@ -308,18 +299,19 @@
         const usernameText = user.username ? `@${user.username}` : (user.first_name || 'User');
         document.getElementById('user-display').innerText = usernameText;
 
-        function switchTab(tabName) {
+        function switchTab(event, tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
             document.getElementById(`tab-${tabName}`).classList.add('active');
-            event.currentTarget.classList.add('active');
+            if(event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
 
             if(tabName === 'lead') loadLeaderboard();
             if(tabName === 'ref') loadReferralCount();
         }
 
-        // Real-Time User Data & Referral Setup
         async function loadUserData() {
             if (!supabaseClient) return;
 
@@ -339,12 +331,11 @@
                     let initialPoints = 0;
                     let referrerId = null;
 
-                    // Referral Detection via Telegram start_param
                     if (startParam && startParam.startsWith("ref_")) {
                         referrerId = parseInt(startParam.replace("ref_", ""));
                         if (referrerId !== user.id) {
-                            initialPoints = 200; // New User Startup Bonus
-                            await rewardReferrer(referrerId); // Reward referrer (+500)
+                            initialPoints = 200;
+                            await rewardReferrer(referrerId);
                         }
                     }
 
@@ -360,7 +351,6 @@
             }
         }
 
-        // Real-Time Reward to Referrer (+500 points)
         async function rewardReferrer(refId) {
             try {
                 let { data } = await supabaseClient.from('users').select('points').eq('id', refId).single();
@@ -370,7 +360,6 @@
             } catch (err) {}
         }
 
-        // Fetch Total Referral Count from Supabase
         async function loadReferralCount() {
             if (!supabaseClient) return;
             try {
@@ -389,7 +378,6 @@
             document.getElementById('energy-fill').style.width = `${(currentEnergy / maxEnergy) * 100}%`;
         }
 
-        // Tap Mechanics
         const tapBtn = document.getElementById('tap-btn');
         let saveTimeout;
 
@@ -414,7 +402,6 @@
             }).eq('id', user.id);
         }
 
-        // Energy Recovery System (1 per second)
         setInterval(() => {
             if (currentEnergy < maxEnergy) {
                 currentEnergy += 1;
@@ -422,7 +409,6 @@
             }
         }, 1000);
 
-        // Fetch Leaderboard Top 10
         async function loadLeaderboard() {
             if (!supabaseClient) return;
             let { data } = await supabaseClient.from('users').select('username, points').order('points', { ascending: false }).limit(10);
@@ -441,7 +427,7 @@
             }
         }
 
-        // Monetag Rewarded Interstitial Ad Integration with Postback ({ymid})
+        // Updated Monetag Rewarded Interstitial Trigger
         function watchAdTask() {
             if (typeof show_11809090 === 'function') {
                 show_11809090({ ymid: user.id.toString() }).then(() => {
@@ -457,17 +443,16 @@
                 }).catch((err) => {
                     console.error('Ad Error or Closed:', err);
                     if(tg.showAlert) {
-                        tg.showAlert('Ad was not completed. Please try again!');
+                        tg.showAlert('No ad available or closed early. Please try again later!');
                     } else {
-                        alert('Ad was not completed. Please try again!');
+                        alert('No ad available or closed early. Please try again later!');
                     }
                 });
             } else {
-                alert('Ad is loading or AdBlocker is active. Please try again in a few seconds!');
+                alert('Ad SDK is loading or blocked by AdBlocker. Please try again in 5 seconds.');
             }
         }
 
-        // Share Invite Link Button
         document.getElementById('share-ref-btn').addEventListener('click', () => {
             const botUsername = "TapToTonBD_bot"; 
             const refLink = `https://t.me/${botUsername}?start=ref_${user.id}`;
