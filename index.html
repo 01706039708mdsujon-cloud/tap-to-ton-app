@@ -1,1 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TapToTon Mini App</title>
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+        }
+        .tap-btn {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background-color: #0088cc;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 136, 204, 0.5);
+            transition: transform 0.1s;
+        }
+        .tap-btn:active {
+            transform: scale(0.95);
+        }
+        .score {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
 
+    <div class="container">
+        <h1>TapToTon</h1>
+        <p id="user-display">Loading User...</p>
+        <div class="score">Points: <span id="points">0</span></div>
+        <button class="tap-btn" id="tap-btn">TAP!</button>
+    </div>
+
+    <script>
+        // Initialize Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Supabase Setup
+        const SUPABASE_URL = "https://gnqevgdnkwizeegiwsdc.supabase.co";
+        const SUPABASE_KEY = "sb_secret_oRZsDm7e008pKXEsUHJYdw_5EDPWiCp";
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let user = tg.initDataUnsafe?.user || { id: 123456, username: "TestUser" }; // Fallback for testing
+        let currentPoints = 0;
+
+        document.getElementById('user-display').innerText = `@${user.username || user.first_name}`;
+
+        // Fetch User Data from Supabase
+        async function loadUserData() {
+            let { data, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            if (data) {
+                currentPoints = data.points;
+                document.getElementById('points').innerText = currentPoints;
+            } else {
+                // If new user, insert into DB
+                await supabase.from('users').insert([
+                    { id: user.id, username: user.username || user.first_name, points: 0 }
+                ]);
+            }
+        }
+
+        // Save Points to Supabase
+        async function savePoints(newPoints) {
+            await supabase
+                .from('users')
+                .update({ points: newPoints })
+                .eq('id', user.id);
+        }
+
+        // Tap Event Handling
+        const tapBtn = document.getElementById('tap-btn');
+        let saveTimeout;
+
+        tapBtn.addEventListener('click', () => {
+            currentPoints += 1;
+            document.getElementById('points').innerText = currentPoints;
+
+            // Debounce save request to avoid database spam
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                savePoints(currentPoints);
+            }, 1000); // Saves 1 second after last tap
+        });
+
+        // Initial Load
+        loadUserData();
+    </script>
+</body>
+</html>
