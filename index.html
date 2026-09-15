@@ -41,6 +41,17 @@
             color: var(--text-secondary);
         }
 
+        /* Marquee Running Headline CSS */
+        .marquee-container {
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--accent-gold);
+            padding: 6px 10px;
+            font-size: 13px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            align-items: center;
+        }
+
         .ad-container {
             width: 100%;
             min-height: 50px;
@@ -202,11 +213,19 @@
 </head>
 <body>
 
+    <!-- Header Section -->
     <div class="header" id="user-display">Loading User...</div>
+
+    <!-- Running Marquee Headline -->
+    <div class="marquee-container">
+        <marquee behavior="scroll" direction="left" scrollamount="5">
+            🚀 <b>স্বাগতম TapToTon-এ!</b> প্রতি ট্যাপে আয় করুন পয়েন্ট, বন্ধুদের ইনভাইট করে জিতে নিন <b>৫০০ পয়েন্ট বোনাস</b> এবং ভিডিও দেখে পান <b>ইনস্ট্যান্ট ৫০০ পয়েন্ট</b>! 🎁
+        </marquee>
+    </div>
 
     <!-- BANNER AD SECTION -->
     <div class="ad-container">
-        <!-- Monetag Banner Script Here -->
+        <!-- Monetag Banner Script Placeholder -->
         <span>[ Monetag Banner Ad Placeholder ]</span>
     </div>
 
@@ -300,6 +319,7 @@
             if(tabName === 'ref') loadReferralCount();
         }
 
+        // Real-Time User Data & Referral Setup
         async function loadUserData() {
             if (!supabaseClient) return;
 
@@ -319,11 +339,12 @@
                     let initialPoints = 0;
                     let referrerId = null;
 
+                    // Referral Detection via Telegram start_param
                     if (startParam && startParam.startsWith("ref_")) {
                         referrerId = parseInt(startParam.replace("ref_", ""));
                         if (referrerId !== user.id) {
-                            initialPoints = 200;
-                            await rewardReferrer(referrerId);
+                            initialPoints = 200; // New User Startup Bonus
+                            await rewardReferrer(referrerId); // Reward referrer (+500)
                         }
                     }
 
@@ -339,6 +360,7 @@
             }
         }
 
+        // Real-Time Reward to Referrer (+500 points)
         async function rewardReferrer(refId) {
             try {
                 let { data } = await supabaseClient.from('users').select('points').eq('id', refId).single();
@@ -348,6 +370,7 @@
             } catch (err) {}
         }
 
+        // Fetch Total Referral Count from Supabase
         async function loadReferralCount() {
             if (!supabaseClient) return;
             try {
@@ -366,6 +389,7 @@
             document.getElementById('energy-fill').style.width = `${(currentEnergy / maxEnergy) * 100}%`;
         }
 
+        // Tap Mechanics
         const tapBtn = document.getElementById('tap-btn');
         let saveTimeout;
 
@@ -390,6 +414,7 @@
             }).eq('id', user.id);
         }
 
+        // Energy Recovery System (1 per second)
         setInterval(() => {
             if (currentEnergy < maxEnergy) {
                 currentEnergy += 1;
@@ -397,6 +422,7 @@
             }
         }, 1000);
 
+        // Fetch Leaderboard Top 10
         async function loadLeaderboard() {
             if (!supabaseClient) return;
             let { data } = await supabaseClient.from('users').select('username, points').order('points', { ascending: false }).limit(10);
@@ -415,10 +441,9 @@
             }
         }
 
-        // Monetag Rewarded Interstitial Ad Integration with Postback Support
+        // Monetag Rewarded Interstitial Ad Integration with Postback ({ymid})
         function watchAdTask() {
             if (typeof show_11809090 === 'function') {
-                // Pass Telegram User ID to Monetag for Postback tracking ({ymid})
                 show_11809090({ ymid: user.id.toString() }).then(() => {
                     currentPoints += 500;
                     updateUI();
@@ -442,6 +467,7 @@
             }
         }
 
+        // Share Invite Link Button
         document.getElementById('share-ref-btn').addEventListener('click', () => {
             const botUsername = "TapToTonBD_bot"; 
             const refLink = `https://t.me/${botUsername}?start=ref_${user.id}`;
