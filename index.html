@@ -6,8 +6,8 @@
     <title>TapToTon Mini App</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Supabase JS Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase SDK JS Bundle -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -60,45 +60,64 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Supabase Configuration
+        // Supabase Setup
         const SUPABASE_URL = "https://gnqevgdnkwizeegiwsdc.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImducWV2Z2Rua3dpemVlZ2l3c2RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0MDkyMDIsImV4cCI6MjEwNDk4NTIwMn0.W4U4_AhCfmYc4lWAjiIZj1VAGfcFWxBUts4UmjKoHZI";
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        let supabaseClient;
+        if (window.supabase) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
 
-        // Telegram User Info
-        let user = tg.initDataUnsafe?.user || { id: 123456, username: "TestUser" };
+        // Get Telegram User
+        let user = tg.initDataUnsafe?.user || { id: 123456, username: "TestUser", first_name: "Test" };
         let currentPoints = 0;
 
-        document.getElementById('user-display').innerText = `@${user.username || user.first_name || 'User'}`;
+        // Display Username
+        const usernameText = user.username ? `@${user.username}` : (user.first_name || 'User');
+        document.getElementById('user-display').innerText = usernameText;
 
         // Fetch User Data from Supabase
         async function loadUserData() {
-            let { data, error } = await supabase
-                .from('users')
-                .select('*')
-                .eq('id', user.id)
-                .single();
+            if (!supabaseClient) return;
 
-            if (data) {
-                currentPoints = data.points;
-                document.getElementById('points').innerText = currentPoints;
-            } else {
-                // Insert new user if not found
-                await supabase.from('users').insert([
-                    { id: user.id, username: user.username || user.first_name || 'User', points: 0 }
-                ]);
+            try {
+                let { data, error } = await supabaseClient
+                    .from('users')
+                    .select('points')
+                    .eq('id', user.id)
+                    .maybeSingle();
+
+                if (data) {
+                    currentPoints = data.points || 0;
+                    document.getElementById('points').innerText = currentPoints;
+                } else {
+                    // Create new record for new user
+                    await supabaseClient.from('users').upsert([
+                        { id: user.id, username: usernameText, points: 0 }
+                    ]);
+                }
+            } catch (err) {
+                console.error("Error loading user data:", err);
             }
         }
 
         // Save Points to Supabase
         async function savePoints(newPoints) {
-            await supabase
-                .from('users')
-                .update({ points: newPoints })
-                .eq('id', user.id);
+            if (!supabaseClient) return;
+
+            try {
+                await supabaseClient
+                    .from('users')
+                    .upsert([
+                        { id: user.id, username: usernameText, points: newPoints }
+                    ]);
+            } catch (err) {
+                console.error("Error saving points:", err);
+            }
         }
 
-        // Tap Event Listener
+        // Tap Event Handling
         const tapBtn = document.getElementById('tap-btn');
         let saveTimeout;
 
@@ -106,14 +125,14 @@
             currentPoints += 1;
             document.getElementById('points').innerText = currentPoints;
 
-            // Debounce save request (saves 1 second after last tap)
+            // Save points 1 second after last tap
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
                 savePoints(currentPoints);
             }, 1000);
         });
 
-        // Initial Data Load
+        // Initialize Data
         loadUserData();
     </script>
 </body>
