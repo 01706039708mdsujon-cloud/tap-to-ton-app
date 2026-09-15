@@ -8,6 +8,9 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Supabase JS Client -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Monetag Rewarded Interstitial Script -->
+    <script src='//ks31.com/tag.min.js' data-zone='11809090' data-sdk='show_11809090'></script>
+    
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -90,7 +93,6 @@
             text-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
         }
 
-        /* Bitcoin Tap Button */
         .tap-btn {
             width: 190px;
             height: 190px;
@@ -111,7 +113,6 @@
             transform: scale(0.92);
         }
 
-        /* Energy Bar */
         .energy-box {
             width: 100%;
             max-width: 250px;
@@ -137,7 +138,6 @@
             transition: width 0.2s ease;
         }
 
-        /* Card Box */
         .card-box {
             background: var(--card-bg);
             border: 1px solid #334155;
@@ -161,7 +161,6 @@
             margin-top: 10px;
         }
 
-        /* Leaderboard List */
         .leaderboard-list {
             list-style: none;
             padding: 0;
@@ -177,7 +176,6 @@
             font-size: 14px;
         }
 
-        /* Navbar */
         .navbar {
             display: flex;
             justify-content: space-around;
@@ -209,7 +207,7 @@
     <!-- BANNER AD SECTION -->
     <div class="ad-container">
         <!-- Monetag Banner Script Here -->
-        <span>[ Banner Ad Space ]</span>
+        <span>[ Monetag Banner Ad Placeholder ]</span>
     </div>
 
     <div class="main-content">
@@ -302,7 +300,6 @@
             if(tabName === 'ref') loadReferralCount();
         }
 
-        // Real-Time User Data & Referral Setup
         async function loadUserData() {
             if (!supabaseClient) return;
 
@@ -322,12 +319,11 @@
                     let initialPoints = 0;
                     let referrerId = null;
 
-                    // Real-time Referral Detection via Telegram start_param
                     if (startParam && startParam.startsWith("ref_")) {
                         referrerId = parseInt(startParam.replace("ref_", ""));
                         if (referrerId !== user.id) {
-                            initialPoints = 200; // New User Startup Bonus
-                            await rewardReferrer(referrerId); // Instantly reward referrer
+                            initialPoints = 200;
+                            await rewardReferrer(referrerId);
                         }
                     }
 
@@ -343,7 +339,6 @@
             }
         }
 
-        // Real-Time Reward to Referrer (+500 points)
         async function rewardReferrer(refId) {
             try {
                 let { data } = await supabaseClient.from('users').select('points').eq('id', refId).single();
@@ -353,7 +348,6 @@
             } catch (err) {}
         }
 
-        // Fetch Total Referral Count from Supabase
         async function loadReferralCount() {
             if (!supabaseClient) return;
             try {
@@ -372,7 +366,6 @@
             document.getElementById('energy-fill').style.width = `${(currentEnergy / maxEnergy) * 100}%`;
         }
 
-        // Tap Mechanics
         const tapBtn = document.getElementById('tap-btn');
         let saveTimeout;
 
@@ -422,14 +415,33 @@
             }
         }
 
+        // Monetag Rewarded Interstitial Ad Integration with Postback Support
         function watchAdTask() {
-            alert("Showing Ad... Complete to receive 500 points!");
-            currentPoints += 500;
-            updateUI();
-            saveData();
+            if (typeof show_11809090 === 'function') {
+                // Pass Telegram User ID to Monetag for Postback tracking ({ymid})
+                show_11809090({ ymid: user.id.toString() }).then(() => {
+                    currentPoints += 500;
+                    updateUI();
+                    saveData();
+                    
+                    if(tg.showAlert) {
+                        tg.showAlert('🎉 Congratulations! You earned +500 points!');
+                    } else {
+                        alert('🎉 Congratulations! You earned +500 points!');
+                    }
+                }).catch((err) => {
+                    console.error('Ad Error or Closed:', err);
+                    if(tg.showAlert) {
+                        tg.showAlert('Ad was not completed. Please try again!');
+                    } else {
+                        alert('Ad was not completed. Please try again!');
+                    }
+                });
+            } else {
+                alert('Ad is loading or AdBlocker is active. Please try again in a few seconds!');
+            }
         }
 
-        // Share Link Button
         document.getElementById('share-ref-btn').addEventListener('click', () => {
             const botUsername = "TapToTonBD_bot"; 
             const refLink = `https://t.me/${botUsername}?start=ref_${user.id}`;
