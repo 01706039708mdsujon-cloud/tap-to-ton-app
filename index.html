@@ -109,13 +109,13 @@
         .val-usd { color: var(--accent-green); }
 
         .tap-btn {
-            width: 160px;
-            height: 160px;
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
             background: radial-gradient(circle at 35% 35%, #ffe066 0%, #f59e0b 50%, #b45309 100%);
             border: 6px solid #fef08a;
             color: #451a03;
-            font-size: 50px;
+            font-size: 45px;
             font-weight: 900;
             cursor: pointer;
             box-shadow: 0 0 25px rgba(245, 158, 11, 0.4);
@@ -124,9 +124,7 @@
             margin: 10px 0;
         }
 
-        .tap-btn:active {
-            transform: scale(0.92);
-        }
+        .tap-btn:active { transform: scale(0.92); }
 
         .energy-box {
             width: 100%;
@@ -192,14 +190,19 @@
             outline: none;
         }
 
-        /* Spin Wheel Visual Box */
-        .spin-box {
-            text-align: center;
-            background: #1e293b;
-            padding: 20px;
-            border-radius: 12px;
-            margin-top: 10px;
-            border: 2px dashed var(--accent-gold);
+        .leaderboard-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0 0;
+            width: 100%;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #334155;
+            font-size: 13px;
         }
 
         .navbar {
@@ -212,7 +215,7 @@
 
         .nav-item {
             color: var(--text-secondary);
-            font-size: 10px;
+            font-size: 9px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -264,7 +267,7 @@
             <!-- 📅 Daily Streak Claim -->
             <div class="card-box" style="text-align:center;">
                 <div style="font-weight:bold; color:var(--accent-gold);">📅 Daily Reward Check-in</div>
-                <p style="font-size:11px; color:var(--text-secondary); margin:4px 0;">প্রতিদিন লগইন করে ক্লেইম করুন <b>+২৫০ TON Points</b>!</p>
+                <p style="font-size:11px; color:var(--text-secondary); margin:4px 0;">প্রতিদিন ক্লেইম করুন <b>+২৫০ TON Points</b>!</p>
                 <button class="btn-action" id="daily-btn" onclick="claimDailyReward()">Claim Daily Bonus</button>
             </div>
         </div>
@@ -279,25 +282,20 @@
             </div>
 
             <div class="card-box">
-                <div style="font-size: 16px; font-weight: bold; color: var(--accent-blue);">🤖 Auto-Tap Bot (Passive)</div>
-                <p style="font-size: 12px; color: var(--text-secondary);">আপনি অফলাইনে থাকলেও বট পয়েন্ট জমা করতে থাকবে!</p>
+                <div style="font-size: 16px; font-weight: bold; color: var(--accent-blue);">🤖 Auto-Tap Bot</div>
+                <p style="font-size: 12px; color: var(--text-secondary);">অফলাইনে থাকলেও পয়েন্ট জমা হতে থাকবে!</p>
                 <button class="btn-action btn-blue" id="bot-buy-btn" onclick="buyAutoBot()">Buy Auto-Bot (Cost: 2000 ₿)</button>
                 <button class="btn-action btn-green" id="bot-claim-btn" style="display:none;" onclick="claimBotEarnings()">Claim Bot Earnings</button>
             </div>
         </div>
 
-        <!-- 🎲 Lucky Spin Wheel Tab -->
-        <div id="tab-spin" class="tab-content">
+        <!-- 🏆 Leaderboard / Top 10 Ranks -->
+        <div id="tab-lead" class="tab-content">
             <div class="card-box">
-                <div style="font-size: 16px; font-weight: bold; color: var(--accent-gold);">🎰 Lucky Wheel</div>
-                <p style="font-size: 12px; color: var(--text-secondary);">স্পিন করে জিতে নিন $0.05 USD পর্যন্ত ফ্রি বোনাস!</p>
-                
-                <div class="spin-box">
-                    <div id="spin-result" style="font-size: 22px; font-weight: bold; color: var(--accent-gold);">🎁 ???</div>
-                </div>
-
-                <button class="btn-action btn-green" id="spin-btn" onclick="spinWheel()">Spin Now (Free Daily)</button>
-                <button class="btn-action" style="margin-top:6px;" onclick="watchAdForSpin()">Watch Ad for +1 Spin</button>
+                <div style="font-size: 16px; font-weight: bold; color: var(--accent-gold);">🏆 Top 10 Tappers</div>
+                <ul class="leaderboard-list" id="leaderboard-list">
+                    <li>Loading ranks...</li>
+                </ul>
             </div>
         </div>
 
@@ -333,7 +331,7 @@
 
             <!-- 📜 Withdraw History -->
             <div class="card-box">
-                <div style="font-size: 14px; font-weight: bold; color: var(--text-secondary);">📜 Last Request Status</div>
+                <div style="font-size: 13px; font-weight: bold; color: var(--text-secondary);">📜 Last Request Status</div>
                 <div id="withdraw-history" style="font-size: 12px; color: var(--accent-gold); margin-top: 5px;">None</div>
             </div>
         </div>
@@ -357,7 +355,7 @@
     <div class="navbar">
         <div class="nav-item active" onclick="switchTab(event, 'earn')"><span>⚡</span><span>Earn</span></div>
         <div class="nav-item" onclick="switchTab(event, 'boost')"><span>🚀</span><span>Boost</span></div>
-        <div class="nav-item" onclick="switchTab(event, 'spin')"><span>🎰</span><span>Spin</span></div>
+        <div class="nav-item" onclick="switchTab(event, 'lead')"><span>🏆</span><span>Ranks</span></div>
         <div class="nav-item" onclick="switchTab(event, 'tasks')"><span>🎯</span><span>Ads</span></div>
         <div class="nav-item" onclick="switchTab(event, 'withdraw')"><span>💳</span><span>Withdraw</span></div>
         <div class="nav-item" onclick="switchTab(event, 'ref')"><span>👥</span><span>Friends</span></div>
@@ -381,11 +379,6 @@
         let tapPower = 1;
         let hasAutoBot = false;
         let lastDailyClaim = 0;
-        let spinsAvailable = 1;
-
-        // Anti-Cheat Variables
-        let tapCountInWindow = 0;
-        let lastTapTime = Date.now();
 
         const usernameText = user.username ? `@${user.username}` : (user.first_name || 'User');
         document.getElementById('user-display').innerText = usernameText;
@@ -399,14 +392,16 @@
                 event.currentTarget.classList.add('active');
             }
 
+            if(tabName === 'lead') loadLeaderboard();
             if(tabName === 'ref') loadReferralCount();
         }
 
+        // 🟢 ডাটাবেজ থেকে ডাটা লোড ও সিঙ্ক
         async function loadUserData() {
             if (!supabaseClient) return;
 
             try {
-                let { data } = await supabaseClient.from('users').select('*').eq('id', user.id).maybeSingle();
+                let { data, error } = await supabaseClient.from('users').select('*').eq('id', user.id).maybeSingle();
 
                 if (data) {
                     currentPoints = data.points || 0;
@@ -443,7 +438,7 @@
                         }
                     }
 
-                    await supabaseClient.from('users').insert([
+                    await supabaseClient.from('users').upsert([
                         { id: user.id, username: usernameText, points: initialPoints, usd_balance: 0.00, referred_by: referrerId, energy: maxEnergy }
                     ]);
 
@@ -477,6 +472,36 @@
             } catch (err) {}
         }
 
+        // 🏆 Top 10 Leaderboard লোড করা
+        async function loadLeaderboard() {
+            if (!supabaseClient) return;
+            const listEl = document.getElementById('leaderboard-list');
+            listEl.innerHTML = "<li>Loading ranks...</li>";
+
+            try {
+                let { data, error } = await supabaseClient
+                    .from('users')
+                    .select('username, points')
+                    .order('points', { ascending: false })
+                    .limit(10);
+
+                if (data && data.length > 0) {
+                    listEl.innerHTML = "";
+                    data.forEach((player, index) => {
+                        listEl.innerHTML += `
+                            <li class="leaderboard-item">
+                                <span>#${index + 1} ${player.username || 'User'}</span>
+                                <span style="color:var(--accent-gold); font-weight:bold;">${player.points || 0} ₿</span>
+                            </li>`;
+                    });
+                } else {
+                    listEl.innerHTML = "<li>No players yet!</li>";
+                }
+            } catch (err) {
+                listEl.innerHTML = "<li>Error loading leaderboard</li>";
+            }
+        }
+
         function updateUI() {
             document.getElementById('ton-points').innerText = `${currentPoints} ₿`;
             document.getElementById('usd-balance').innerText = `$${usdBalance.toFixed(3)}`;
@@ -485,23 +510,10 @@
             document.getElementById('multitap-lvl').innerText = tapPower;
         }
 
-        // 🛑 Anti-Cheat & Tapping System
         const tapBtn = document.getElementById('tap-btn');
         let saveTimeout;
 
         tapBtn.addEventListener('click', () => {
-            let now = Date.now();
-            if (now - lastTapTime < 50) { // 20+ taps per sec detection
-                tapCountInWindow++;
-                if (tapCountInWindow > 15) {
-                    alert('⚠️ Auto-clicker detected! Please tap normally.');
-                    return;
-                }
-            } else {
-                tapCountInWindow = 0;
-            }
-            lastTapTime = now;
-
             if (currentEnergy >= tapPower) {
                 currentPoints += tapPower;
                 currentEnergy -= tapPower;
@@ -515,14 +527,16 @@
         async function saveData() {
             if (!supabaseClient) return;
             let nowSec = Math.floor(Date.now() / 1000);
-            await supabaseClient.from('users').update({
+            await supabaseClient.from('users').upsert({
+                id: user.id,
+                username: usernameText,
                 points: currentPoints,
                 usd_balance: usdBalance,
                 energy: currentEnergy,
                 tap_power: tapPower,
                 has_autobot: hasAutoBot,
                 last_energy_update: nowSec
-            }).eq('id', user.id);
+            });
         }
 
         setInterval(() => {
@@ -543,11 +557,7 @@
             currentPoints += 250;
             lastDailyClaim = now;
             updateUI();
-            
-            await supabaseClient.from('users').update({
-                points: currentPoints,
-                last_daily_claim: now
-            }).eq('id', user.id);
+            saveData();
 
             alert('🎉 Claimed +250 TON Points Daily Reward!');
         }
@@ -586,42 +596,6 @@
             updateUI();
             saveData();
             alert(`🎉 Auto-Bot mined +${botBonus} TON Points for you!`);
-        }
-
-        // 🎰 Spin & Win System
-        function spinWheel() {
-            if (spinsAvailable <= 0) {
-                alert('⚠️ No spins left! Watch an ad to get +1 spin.');
-                return;
-            }
-            
-            spinsAvailable--;
-            let rewards = [
-                { text: "+$0.01 USD", usd: 0.01, pts: 0 },
-                { text: "+200 TON Points", usd: 0, pts: 200 },
-                { text: "+$0.005 USD", usd: 0.005, pts: 0 },
-                { text: "+500 TON Points", usd: 0, pts: 500 }
-            ];
-
-            let win = rewards[Math.floor(Math.random() * rewards.length)];
-            usdBalance += win.usd;
-            currentPoints += win.pts;
-            
-            document.getElementById('spin-result').innerText = win.text;
-            updateUI();
-            saveData();
-        }
-
-        function watchAdForSpin() {
-            if (typeof show_11809090 === 'function') {
-                show_11809090().then(() => {
-                    spinsAvailable++;
-                    alert('🎉 Earned +1 Spin!');
-                }).catch(() => alert('Ad not ready yet!'));
-            } else {
-                spinsAvailable++;
-                alert('Test Ad Finished: +1 Spin Added!');
-            }
         }
 
         // 🪧 Monetag Rewarded Interstitial Handler
@@ -668,10 +642,12 @@
                 document.getElementById('withdraw-history').innerText = statusText;
                 updateUI();
 
-                await supabaseClient.from('users').update({
+                await supabaseClient.from('users').upsert({
+                    id: user.id,
+                    username: usernameText,
                     usd_balance: 0.00,
                     withdraw_status: statusText
-                }).eq('id', user.id);
+                });
 
                 alert('✅ Withdrawal Request Submitted Successfully!');
             }
