@@ -3,31 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TapToTon Earn</title>
+    <title>TapToTon Mini App</title>
+    
+    <!-- 🟢 Telegram WebApp & Supabase SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- 🟢 Monetag / Adsgram Script (Zone 11809090) -->
+    <script src="https://libtl.com/sdk.js" data-zone="11809090" data-sdk="show_11809090"></script>
+
     <style>
-        body { font-family: Arial, sans-serif; background-color: #121212; color: #fff; text-align: center; margin: 0; padding: 15px; user-select: none; }
-        .card { background: #1e1e1e; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        h2 { margin: 5px 0; color: #0088cc; }
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #121212; 
+            color: #fff; 
+            text-align: center; 
+            margin: 0; 
+            padding: 10px 15px 15px 15px; 
+            user-select: none; 
+        }
+
+        /* 📢 চলমান হেডলাইন (Marquee Ticker) স্টাইল */
+        .ticker-wrap {
+            width: 100%;
+            background: #222;
+            border: 1px solid #0088cc;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        .ticker-title {
+            background: #0088cc;
+            color: #fff;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        marquee {
+            color: #ffcc00;
+            font-size: 13px;
+            font-weight: bold;
+            padding-top: 2px;
+        }
+
+        .card { 
+            background: #1e1e1e; 
+            padding: 15px; 
+            border-radius: 12px; 
+            margin-bottom: 15px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
+        }
+        h2 { margin: 5px 0 10px 0; color: #0088cc; }
         .balance-box { display: flex; justify-content: space-around; margin-top: 10px; }
         .balance-item { background: #2a2a2a; padding: 10px; border-radius: 8px; width: 45%; }
         .pts { font-size: 20px; color: #0088cc; font-weight: bold; }
         .bdt { font-size: 20px; color: #4CAF50; font-weight: bold; }
         
-        /* ট্যাপ করার কয়েন স্টাইল */
-        .tap-area { margin: 20px 0; }
-        .coin-btn { width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle, #0088cc, #004466); border: 4px solid #00aaff; color: white; font-size: 22px; font-weight: bold; cursor: pointer; outline: none; box-shadow: 0 0 20px rgba(0, 136, 204, 0.6); transition: transform 0.1s; }
+        /* ট্যাপ কয়েন সিএসএস */
+        .tap-area { margin: 15px 0; }
+        .coin-btn { 
+            width: 130px; 
+            height: 130px; 
+            border-radius: 50%; 
+            background: radial-gradient(circle, #0088cc, #004466); 
+            border: 4px solid #00aaff; 
+            color: white; 
+            font-size: 22px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            outline: none; 
+            box-shadow: 0 0 20px rgba(0, 136, 204, 0.6); 
+            transition: transform 0.05s; 
+        }
         .coin-btn:active { transform: scale(0.92); }
-        
         .energy-text { font-size: 14px; color: #ffcc00; margin-top: 8px; font-weight: bold; }
-        .btn { background: #0088cc; color: white; border: none; padding: 12px 20px; font-size: 15px; border-radius: 8px; cursor: pointer; margin: 5px 0; width: 100%; }
+        
+        .btn { 
+            background: #0088cc; 
+            color: white; 
+            border: none; 
+            padding: 12px 20px; 
+            font-size: 15px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            margin: 5px 0; 
+            width: 100%; 
+        }
         .btn-green { background: #28a745; }
-        .input-box { padding: 10px; width: 90%; border-radius: 6px; border: 1px solid #444; margin-bottom: 10px; background: #222; color: #fff; text-align: center; }
-        .badge { background: #ff9800; color: #000; padding: 3px 6px; font-size: 10px; border-radius: 4px; font-weight: bold; }
+        .input-box { 
+            padding: 10px; 
+            width: 90%; 
+            border-radius: 6px; 
+            border: 1px solid #444; 
+            margin-bottom: 10px; 
+            background: #222; 
+            color: #fff; 
+            text-align: center; 
+        }
+        .badge { background: #ff9800; color: #000; padding: 2px 6px; font-size: 10px; border-radius: 4px; font-weight: bold; }
     </style>
 </head>
 <body>
+
+    <!-- 📢 ১. চলমান হেডলাইন (Running Headline) -->
+    <div class="ticker-wrap">
+        <div class="ticker-title">📢 নোটিশ:</div>
+        <marquee behavior="scroll" direction="left" scrollamount="5">
+            🔥 TapToTon-এ স্বাগতম! প্রতিদিন ভিডিও এড দেখে ইনস্ট্যান্ট বিকাশ/নগদে পেমেন্ট নিন। 💎 TON Points খুব শীঘ্রই বড় বড় ক্রিপ্টো এক্সচেঞ্জে লিস্ট হবে! 👥 প্রতিটি রেফারে পাচ্ছেন +৫০০ TON Points বোনাস!
+        </marquee>
+    </div>
 
     <h2>⚡ TapToTon Earn</h2>
     
@@ -46,23 +133,23 @@
         </div>
     </div>
 
-    <!-- ট্যাপ সেকশন (নতুন ফিচার) -->
+    <!-- ট্যাপ এয়ারড্রপ সেকশন -->
     <div class="card tap-area">
         <button class="coin-btn" id="coin" onclick="tapCoin()">TAP!</button>
         <div class="energy-text">⚡ এনার্জি: <span id="energy">500</span> / 500</div>
     </div>
 
-    <!-- এড সেকশন (Monetag Integration Ready) -->
+    <!-- রিওয়ার্ডেড এড সেকশন (Monetag Integration) -->
     <div class="card">
         <h3>📺 ভিডিও এড দেখুন</h3>
-        <p>প্রতি এড দেখলে সরাসরি পাবেন <b>৳০.৫০ টাকা</b> (ইনস্ট্যান্ট উইথড্র)</p>
+        <p>প্রতি এড দেখলে সরাসরি পাবেন <b>৳০.৫০ টাকা</b></p>
         <button class="btn" onclick="watchAd()">এড দেখুন (+৳০.৫০)</button>
     </div>
 
     <!-- রেফারেল সেকশন -->
     <div class="card">
         <h3>👥 বন্ধুদের ইনভাইট করুন</h3>
-        <p>প্রতি সফল রেফারে পাবেন <b>+৫০০ TON Points</b></p>
+        <p>প্রতি রেফারে পাবেন <b>+৫০০ TON Points</b></p>
         <input type="text" id="ref-link" class="input-box" readonly>
         <button class="btn" onclick="copyRefLink()">লিংক কপি করুন</button>
     </div>
@@ -80,7 +167,7 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // 🟢 Supabase কনফিগারেশন (আপনার আসল প্রজেক্ট ডাটা)
+        // 🟢 Supabase সংযোগ
         const SUPABASE_URL = "https://gnqevgdnkwizeegiwsdc.supabase.co";
         const SUPABASE_KEY = "EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImducWV2Z2Rua3dpemVlZ2l3c2RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0MDkyMDIsImV4cCI6MjEwNDk4NTIwMn0.W4U4_AhCfmYc4lWAjiIZj1VAGfcFWxBUts4UmjKoHZI";
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -100,7 +187,7 @@
             startEnergyRecovery();
         };
 
-        // ১. ডাটাবেজ থেকে পুরোনো ডাটা নিরাপদে লোড
+        // ১. ডাটাবেজ থেকে ডাটা লোড
         async function loadUserData() {
             let { data, error } = await supabase.from('users').select('*').eq('id', user.id).single();
 
@@ -124,35 +211,31 @@
             }
         }
 
-        // ২. ট্যাপ করে পয়েন্ট অর্জন
+        // ২. ট্যাপ বোনাস (+১ TON Point)
         async function tapCoin() {
-            if (userEnergy <= 0) {
-                alert("আপনার এনার্জি শেষ! কিছুটা সময় অপেক্ষা করুন।");
-                return;
-            }
+            if (userEnergy <= 0) return;
 
             userPoints += 1;
             userEnergy -= 1;
             updateUI();
 
-            // ডাটা সেভ (Debounce ব্যাকএন্ড সেভ)
             clearTimeout(window.saveTimer);
             window.saveTimer = setTimeout(async () => {
                 await supabase.from('users').update({ 
                     points: userPoints, 
                     energy: userEnergy 
                 }).eq('id', user.id);
-            }, 1000);
+            }, 800);
         }
 
-        // ৩. এনার্জি অটো রিকভারি
+        // ৩. অটো এনার্জি রিকভারি
         function startEnergyRecovery() {
-            setInterval(async () => {
+            setInterval(() => {
                 if (userEnergy < maxEnergy) {
                     userEnergy += 1;
                     document.getElementById("energy").innerText = userEnergy;
                 }
-            }, 3000); // প্রতি ৩ সেকেন্ডে ১ এনার্জি বাড়বে
+            }, 3000);
         }
 
         // ৪. রেফারেল সিস্টেম (+৫০০ TON Points)
@@ -177,19 +260,26 @@
             document.getElementById("energy").innerText = userEnergy;
         }
 
-        // ৫. এড দেখা সেকশন (Monetag/Adsterra Ad Placement)
+        // 🪧 ৫. Monetag Ad Trigger (Zone 11809090)
         async function watchAd() {
-            // 💡 আপনার Monetag ডাইরেক্ট লিংক বা পপ-আপ থাকলে এখানে ট্রিগার করবেন:
-            // window.open('https://your-monetag-direct-link.com', '_blank');
-
-            alert("এড দেখা সম্পন্ন হয়েছে! আপনার একাউন্টে ৳০.৫০ টাকা যোগ হয়েছে।");
-            
-            userBDT += 0.50;
-            updateUI();
-            await supabase.from('users').update({ usd_balance: userBDT }).eq('id', user.id);
+            if (typeof show_11809090 === 'function') {
+                show_11809090().then(async () => {
+                    userBDT += 0.50;
+                    updateUI();
+                    await supabase.from('users').update({ usd_balance: userBDT }).eq('id', user.id);
+                    alert("এড দেখার জন্য ধন্যবাদ! আপনার ব্যালেন্সে ৳০.৫০ যোগ করা হয়েছে।");
+                }).catch((err) => {
+                    alert("বিজ্ঞাপন লোড হতে সমস্যা হচ্ছে, অনুগ্রহ করে কিছুক্ষণ পর চেষ্টা করুন।");
+                });
+            } else {
+                userBDT += 0.50;
+                updateUI();
+                await supabase.from('users').update({ usd_balance: userBDT }).eq('id', user.id);
+                alert("টেস্ট এড সম্পন্ন! ৳০.৫০ যোগ হয়েছে।");
+            }
         }
 
-        // ৬. উইথড্র প্রসেস
+        // ৬. উইথড্র রিকোয়েস্ট
         async function processWithdraw() {
             let amount = parseFloat(document.getElementById("withdraw-amount").value);
             let number = document.getElementById("withdraw-number").value;
@@ -205,7 +295,7 @@
             }
 
             if (amount > userBDT) {
-                alert("আপনার এড ইনকাম ব্যালেন্সে পর্যাপ্ত টাকা নেই!");
+                alert("আপনার পর্যাপ্ত এড ইনকাম ব্যালেন্স নেই!");
                 return;
             }
 
