@@ -33,6 +33,7 @@
             flex-direction: column;
             height: 100vh;
             user-select: none;
+            overflow: hidden;
         }
 
         .header {
@@ -60,6 +61,7 @@
             align-items: center;
             padding: 12px;
             overflow-y: auto;
+            position: relative;
         }
 
         .tab-content {
@@ -108,6 +110,14 @@
         .val-ton { color: var(--accent-gold); }
         .val-usd { color: var(--accent-green); }
 
+        .tap-area {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
         .tap-btn {
             width: 150px;
             height: 150px;
@@ -119,12 +129,38 @@
             font-weight: 900;
             cursor: pointer;
             box-shadow: 0 0 25px rgba(245, 158, 11, 0.4);
-            transition: transform 0.05s ease;
+            transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             outline: none;
             margin: 10px 0;
+            touch-action: manipulation;
         }
 
-        .tap-btn:active { transform: scale(0.92); }
+        .tap-btn:active { 
+            transform: scale(0.92); 
+        }
+
+        /* ✨ Tap Floating Animation Styles */
+        .tap-particle {
+            position: absolute;
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--accent-gold);
+            text-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 99;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-80px) scale(1.4);
+            }
+        }
 
         .energy-box {
             width: 100%;
@@ -240,7 +276,7 @@
         </marquee>
     </div>
 
-    <div class="main-content">
+    <div class="main-content" id="main-content">
         <!-- Dual Balance Display -->
         <div class="balance-grid">
             <div class="balance-card">
@@ -255,7 +291,9 @@
 
         <!-- Earn Tab -->
         <div id="tab-earn" class="tab-content active">
-            <button class="tap-btn" id="tap-btn">₿</button>
+            <div class="tap-area">
+                <button class="tap-btn" id="tap-btn">₿</button>
+            </div>
 
             <div class="energy-box">
                 ⚡ <span id="energy-text">500 / 500</span>
@@ -396,12 +434,11 @@
             if(tabName === 'ref') loadReferralCount();
         }
 
-        // 🟢 ডাটাবেজ থেকে ডাটা লোড ও সিঙ্ক
         async function loadUserData() {
             if (!supabaseClient) return;
 
             try {
-                let { data, error } = await supabaseClient.from('users').select('*').eq('id', user.id).maybeSingle();
+                let { data } = await supabaseClient.from('users').select('*').eq('id', user.id).maybeSingle();
 
                 if (data) {
                     currentPoints = data.points || 0;
@@ -472,14 +509,13 @@
             } catch (err) {}
         }
 
-        // 🏆 Top 10 Leaderboard লোড করা
         async function loadLeaderboard() {
             if (!supabaseClient) return;
             const listEl = document.getElementById('leaderboard-list');
             listEl.innerHTML = "<li>Loading ranks...</li>";
 
             try {
-                let { data, error } = await supabaseClient
+                let { data } = await supabaseClient
                     .from('users')
                     .select('username, points')
                     .order('points', { ascending: false })
@@ -510,14 +546,37 @@
             document.getElementById('multitap-lvl').innerText = tapPower;
         }
 
+        // ✨ Floating Tap Animation Function
+        function createTapParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.classList.add('tap-particle');
+            particle.innerText = `+${tapPower}`;
+            
+            particle.style.left = `${x - 15}px`;
+            particle.style.top = `${y - 20}px`;
+
+            document.getElementById('main-content').appendChild(particle);
+
+            setTimeout(() => {
+                particle.remove();
+            }, 1000);
+        }
+
         const tapBtn = document.getElementById('tap-btn');
         let saveTimeout;
 
-        tapBtn.addEventListener('click', () => {
+        tapBtn.addEventListener('click', (e) => {
             if (currentEnergy >= tapPower) {
                 currentPoints += tapPower;
                 currentEnergy -= tapPower;
                 updateUI();
+
+                // অ্যানিমেশন পজিশন গণনা
+                const rect = tapBtn.getBoundingClientRect();
+                const x = e.clientX || (rect.left + rect.width / 2);
+                const y = e.clientY || (rect.top + rect.height / 2);
+
+                createTapParticle(x, y);
 
                 clearTimeout(saveTimeout);
                 saveTimeout = setTimeout(saveData, 800);
@@ -546,7 +605,6 @@
             }
         }, 1000);
 
-        // 📅 Daily Claim Reward
         async function claimDailyReward() {
             let now = Math.floor(Date.now() / 1000);
             if (now - lastDailyClaim < 86400) {
@@ -562,7 +620,6 @@
             alert('🎉 Claimed +250 TON Points Daily Reward!');
         }
 
-        // ⚡ Upgrade Multitap
         async function buyMultitap() {
             if (currentPoints < 500) {
                 alert('⚠️ Insufficient TON Points! Need 500 ₿');
@@ -575,7 +632,6 @@
             alert('🚀 Multitap Upgraded! Now getting ' + tapPower + 'x points per tap.');
         }
 
-        // 🤖 Auto-Bot System
         async function buyAutoBot() {
             if (currentPoints < 2000) {
                 alert('⚠️ Insufficient TON Points! Need 2000 ₿');
@@ -598,7 +654,6 @@
             alert(`🎉 Auto-Bot mined +${botBonus} TON Points for you!`);
         }
 
-        // 🪧 Monetag Rewarded Interstitial Handler
         function watchAdTask() {
             if (typeof show_11809090 === 'function') {
                 show_11809090({ ymid: user.id.toString() }).then(() => {
@@ -619,7 +674,6 @@
             }
         }
 
-        // 💸 Process Withdrawal
         async function processWithdrawal() {
             const method = document.getElementById('withdraw-method').value;
             const account = document.getElementById('withdraw-account').value.trim();
