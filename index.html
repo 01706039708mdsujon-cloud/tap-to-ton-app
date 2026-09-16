@@ -1,557 +1,227 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TapToTon Mini App</title>
-    <!-- Telegram WebApp SDK -->
+    <title>TapToTon Earn</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Supabase JS Client -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    
-    <!-- Monetag Rewarded Interstitial Script -->
-    <script src='//libtl.com/sdk.js' data-zone='11809090' data-sdk='show_11809090'></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root {
-            --bg-color: #0b0f19;
-            --card-bg: #151c2c;
-            --accent-gold: #f59e0b;
-            --accent-green: #10b981;
-            --text-color: #f8fafc;
-            --text-secondary: #94a3b8;
-        }
-
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            user-select: none;
-        }
-
-        .header {
-            padding: 12px;
-            text-align: center;
-            background: var(--card-bg);
-            border-bottom: 1px solid #1e293b;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        .marquee-container {
-            background: rgba(245, 158, 11, 0.12);
-            color: var(--accent-gold);
-            padding: 6px 10px;
-            font-size: 13px;
-            border-bottom: 1px solid #334155;
-        }
-
-        .ad-container {
-            width: 100%;
-            min-height: 50px;
-            background: rgba(255, 255, 255, 0.03);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px;
-            overflow-y: auto;
-        }
-
-        .tab-content {
-            display: none;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        .tab-content.active {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* Dual Balance Grid */
-        .balance-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-
-        .balance-card {
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            border: 1px solid #334155;
-            padding: 12px;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        .balance-title {
-            font-size: 11px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-
-        .balance-value {
-            font-size: 22px;
-            font-weight: 800;
-            margin-top: 4px;
-        }
-
-        .val-ton { color: var(--accent-gold); }
-        .val-usd { color: var(--accent-green); }
-
-        .tap-btn {
-            width: 170px;
-            height: 170px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 35% 35%, #ffe066 0%, #f59e0b 50%, #b45309 100%);
-            border: 6px solid #fef08a;
-            color: #451a03;
-            font-size: 55px;
-            font-weight: 900;
-            cursor: pointer;
-            box-shadow: 0 0 30px rgba(245, 158, 11, 0.5);
-            transition: transform 0.08s ease;
-            outline: none;
-            margin: 10px 0;
-        }
-
-        .tap-btn:active {
-            transform: scale(0.92);
-        }
-
-        .energy-box {
-            width: 100%;
-            max-width: 250px;
-            font-size: 13px;
-            color: var(--accent-gold);
-            font-weight: bold;
-        }
-
-        .energy-bar-bg {
-            width: 100%;
-            height: 8px;
-            background: #1e293b;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 5px;
-            border: 1px solid #334155;
-        }
-
-        .energy-bar-fill {
-            height: 100%;
-            width: 100%;
-            background: linear-gradient(90deg, #f59e0b, #ef4444);
-            transition: width 0.2s ease;
-        }
-
-        .card-box {
-            background: var(--card-bg);
-            border: 1px solid #334155;
-            padding: 18px;
-            border-radius: 16px;
-            width: 100%;
-            box-sizing: border-box;
-            margin-top: 10px;
-            text-align: left;
-        }
-
-        .btn-action {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: #ffffff;
-            border: none;
-            padding: 12px 20px;
-            font-size: 15px;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 12px;
-        }
-
-        .btn-green {
-            background: linear-gradient(135deg, #10b981, #059669);
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 12px;
-            margin-top: 10px;
-            border-radius: 8px;
-            border: 1px solid #334155;
-            background: #0f172a;
-            color: white;
-            box-sizing: border-box;
-            outline: none;
-        }
-
-        .leaderboard-list {
-            list-style: none;
-            padding: 0;
-            margin: 10px 0 0 0;
-            width: 100%;
-        }
-
-        .leaderboard-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            border-bottom: 1px solid #334155;
-            font-size: 14px;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-around;
-            background-color: var(--card-bg);
-            border-top: 1px solid #1e293b;
-            padding: 10px 0;
-        }
-
-        .nav-item {
-            color: var(--text-secondary);
-            font-size: 11px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            flex: 1;
-        }
-
-        .nav-item.active {
-            color: var(--accent-gold);
-            font-weight: bold;
-        }
+        body { font-family: Arial, sans-serif; background-color: #121212; color: #fff; text-align: center; margin: 0; padding: 15px; user-select: none; }
+        .card { background: #1e1e1e; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        h2 { margin: 5px 0; color: #0088cc; }
+        .balance-box { display: flex; justify-content: space-around; margin-top: 10px; }
+        .balance-item { background: #2a2a2a; padding: 10px; border-radius: 8px; width: 45%; }
+        .pts { font-size: 20px; color: #0088cc; font-weight: bold; }
+        .bdt { font-size: 20px; color: #4CAF50; font-weight: bold; }
+        
+        /* ট্যাপ করার কয়েন স্টাইল */
+        .tap-area { margin: 20px 0; }
+        .coin-btn { width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle, #0088cc, #004466); border: 4px solid #00aaff; color: white; font-size: 22px; font-weight: bold; cursor: pointer; outline: none; box-shadow: 0 0 20px rgba(0, 136, 204, 0.6); transition: transform 0.1s; }
+        .coin-btn:active { transform: scale(0.92); }
+        
+        .energy-text { font-size: 14px; color: #ffcc00; margin-top: 8px; font-weight: bold; }
+        .btn { background: #0088cc; color: white; border: none; padding: 12px 20px; font-size: 15px; border-radius: 8px; cursor: pointer; margin: 5px 0; width: 100%; }
+        .btn-green { background: #28a745; }
+        .input-box { padding: 10px; width: 90%; border-radius: 6px; border: 1px solid #444; margin-bottom: 10px; background: #222; color: #fff; text-align: center; }
+        .badge { background: #ff9800; color: #000; padding: 3px 6px; font-size: 10px; border-radius: 4px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="header" id="user-display">Loading User...</div>
-
-    <div class="marquee-container">
-        <marquee behavior="scroll" direction="left" scrollamount="5">
-            🚀 <b>এড দেখুন এবং সরাসরি $ ডলার আয় করে ইনস্ট্যান্ট উইথড্র নিন!</b> TON কয়েন পরবর্তীতে লিস্ট হবে। 🎁
-        </marquee>
-    </div>
-
-    <!-- Monetag Banner Section -->
-    <div class="ad-container" id="monetag-banner">
-        <script src="//libtl.com/sdk.js" data-zone="11809090" async data-cfasync="false"></script>
-    </div>
-
-    <div class="main-content">
-        <!-- Dual Balance Display -->
-        <div class="balance-grid">
-            <div class="balance-card">
-                <div class="balance-title">TON Points (Tapping)</div>
-                <div class="balance-value val-ton" id="ton-points">0 ₿</div>
+    <h2>⚡ TapToTon Earn</h2>
+    
+    <!-- ড্যাশবোর্ড -->
+    <div class="card">
+        <h3>💰 আপনার ব্যালেন্স</h3>
+        <div class="balance-box">
+            <div class="balance-item">
+                <span>TON Points <span class="badge">Airdrop</span></span>
+                <div id="points" class="pts">0</div>
             </div>
-            <div class="balance-card">
-                <div class="balance-title">Ad Earnings (USD)</div>
-                <div class="balance-value val-usd" id="usd-balance">$0.000</div>
-            </div>
-        </div>
-
-        <!-- Earn Tab -->
-        <div id="tab-earn" class="tab-content active">
-            <button class="tap-btn" id="tap-btn">₿</button>
-
-            <div class="energy-box">
-                ⚡ <span id="energy-text">500 / 500</span>
-                <div class="energy-bar-bg">
-                    <div class="energy-bar-fill" id="energy-fill"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tasks / Ad Watch Tab -->
-        <div id="tab-tasks" class="tab-content">
-            <div class="card-box">
-                <div style="font-size: 18px; font-weight: bold; color: var(--accent-green);">📹 Watch Video Ads</div>
-                <p style="font-size: 13px; color: var(--text-secondary); margin-top: 5px;">
-                    প্রতিটি এড দেখার জন্য পাবেন <b>$0.005 USD</b> এবং <b>+100 TON Points</b>!
-                </p>
-                <button class="btn-action btn-green" onclick="watchAdTask()">Watch Video Ad</button>
-            </div>
-        </div>
-
-        <!-- Withdraw Tab -->
-        <div id="tab-withdraw" class="tab-content">
-            <div class="card-box">
-                <div style="font-size: 18px; font-weight: bold; color: var(--accent-green);">💸 Instant Withdraw</div>
-                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 5px;">
-                    মিনিমাম উইথড্র: <b>$0.50 USD</b> (Bkash, Nagad, TON Wallet)
-                </p>
-                
-                <label style="font-size:12px; color:var(--text-secondary); margin-top:10px; display:block;">Select Payment Method:</label>
-                <select class="input-field" id="withdraw-method">
-                    <option value="Bkash">Bkash Personal</option>
-                    <option value="Nagad">Nagad Personal</option>
-                    <option value="TON Wallet">TON Wallet (Address)</option>
-                </select>
-
-                <input type="text" class="input-field" id="withdraw-account" placeholder="Enter Account Number / Wallet Address">
-                
-                <button class="btn-action btn-green" onclick="processWithdrawal()">Submit Withdraw Request</button>
-            </div>
-        </div>
-
-        <!-- Leaderboard Tab -->
-        <div id="tab-lead" class="tab-content">
-            <div class="card-box">
-                <div style="font-size: 18px; font-weight: bold; color: var(--accent-gold);">🏆 Top Tappers</div>
-                <ul class="leaderboard-list" id="leaderboard-list">
-                    <li>Loading ranks...</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Friends Tab -->
-        <div id="tab-ref" class="tab-content">
-            <div class="card-box">
-                <div style="font-size: 18px; font-weight: bold; color: var(--accent-gold);">Invite Friends!</div>
-                <p style="font-size: 13px; color: var(--text-secondary);">
-                    Earn <b>+500 TON Points</b> per referral.
-                </p>
-                <div style="margin: 15px 0; font-size: 14px; color: var(--accent-gold);">
-                    Total Referrals: <b id="ref-count">0</b>
-                </div>
-                <button class="btn-action" id="share-ref-btn">Share Invite Link</button>
+            <div class="balance-item">
+                <span>এড ইনকাম (BDT)</span>
+                <div id="bdt_balance" class="bdt">৳0.00</div>
             </div>
         </div>
     </div>
 
-    <!-- Bottom Navigation Bar -->
-    <div class="navbar">
-        <div class="nav-item active" onclick="switchTab(event, 'earn')"><span>⚡</span><span>Earn</span></div>
-        <div class="nav-item" onclick="switchTab(event, 'tasks')"><span>🎯</span><span>Ads</span></div>
-        <div class="nav-item" onclick="switchTab(event, 'withdraw')"><span>💳</span><span>Withdraw</span></div>
-        <div class="nav-item" onclick="switchTab(event, 'lead')"><span>🏆</span><span>Ranks</span></div>
-        <div class="nav-item" onclick="switchTab(event, 'ref')"><span>👥</span><span>Friends</span></div>
+    <!-- ট্যাপ সেকশন (নতুন ফিচার) -->
+    <div class="card tap-area">
+        <button class="coin-btn" id="coin" onclick="tapCoin()">TAP!</button>
+        <div class="energy-text">⚡ এনার্জি: <span id="energy">500</span> / 500</div>
+    </div>
+
+    <!-- এড সেকশন (Monetag Integration Ready) -->
+    <div class="card">
+        <h3>📺 ভিডিও এড দেখুন</h3>
+        <p>প্রতি এড দেখলে সরাসরি পাবেন <b>৳০.৫০ টাকা</b> (ইনস্ট্যান্ট উইথড্র)</p>
+        <button class="btn" onclick="watchAd()">এড দেখুন (+৳০.৫০)</button>
+    </div>
+
+    <!-- রেফারেল সেকশন -->
+    <div class="card">
+        <h3>👥 বন্ধুদের ইনভাইট করুন</h3>
+        <p>প্রতি সফল রেফারে পাবেন <b>+৫০০ TON Points</b></p>
+        <input type="text" id="ref-link" class="input-box" readonly>
+        <button class="btn" onclick="copyRefLink()">লিংক কপি করুন</button>
+    </div>
+
+    <!-- উইথড্র সেকশন -->
+    <div class="card">
+        <h3>💸 ইনস্ট্যান্ট উইথড্র (Ad Earnings)</h3>
+        <p>মিনিমাম উইথড্র: <b>২০ টাকা</b> (বিকাশ / নগদ)</p>
+        <input type="number" id="withdraw-amount" class="input-box" placeholder="টাকার পরিমাণ (যেমন: 20)">
+        <input type="text" id="withdraw-number" class="input-box" placeholder="বিকাশ/নগদ নম্বর">
+        <button class="btn btn-green" onclick="processWithdraw()">উইথড্র রিকোয়েস্ট দিন</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
+        // 🟢 Supabase কনফিগারেশন (আপনার আসল প্রজেক্ট ডাটা)
         const SUPABASE_URL = "https://gnqevgdnkwizeegiwsdc.supabase.co";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImducWV2Z2Rua3dpemVlZ2l3c2RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0MDkyMDIsImV4cCI6MjEwNDk4NTIwMn0.W4U4_AhCfmYc4lWAjiIZj1VAGfcFWxBUts4UmjKoHZI";
+        const SUPABASE_KEY = "EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImducWV2Z2Rua3dpemVlZ2l3c2RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0MDkyMDIsImV4cCI6MjEwNDk4NTIwMn0.W4U4_AhCfmYc4lWAjiIZj1VAGfcFWxBUts4UmjKoHZI";
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const BOT_USERNAME = "TapToTonEarn_bot";
+        let user = tg.initDataUnsafe?.user || { id: 12345678, username: "TestUser" };
         
-        let supabaseClient = window.supabase ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
-        let user = tg.initDataUnsafe?.user || { id: 123456, username: "TestUser", first_name: "Test" };
-        let startParam = tg.initDataUnsafe?.start_param || "";
-        
-        let currentPoints = 0;
-        let usdBalance = 0.00;
-        let maxEnergy = 500;
-        let currentEnergy = 500;
+        let userPoints = 0;
+        let userBDT = 0.00;
+        let userEnergy = 500;
+        const maxEnergy = 500;
 
-        const usernameText = user.username ? `@${user.username}` : (user.first_name || 'User');
-        document.getElementById('user-display').innerText = usernameText;
+        window.onload = async () => {
+            document.getElementById("ref-link").value = `https://t.me/${BOT_USERNAME}?start=ref_${user.id}`;
+            await loadUserData();
+            await checkReferral();
+            startEnergyRecovery();
+        };
 
-        function switchTab(event, tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-            if(event && event.currentTarget) {
-                event.currentTarget.classList.add('active');
-            }
-
-            if(tabName === 'lead') loadLeaderboard();
-            if(tabName === 'ref') loadReferralCount();
-        }
-
+        // ১. ডাটাবেজ থেকে পুরোনো ডাটা নিরাপদে লোড
         async function loadUserData() {
-            if (!supabaseClient) return;
+            let { data, error } = await supabase.from('users').select('*').eq('id', user.id).single();
 
-            try {
-                let { data } = await supabaseClient.from('users').select('*').eq('id', user.id).maybeSingle();
+            if (!data) {
+                const { data: newUser } = await supabase.from('users').insert([{
+                    id: user.id,
+                    username: user.username,
+                    points: 0,
+                    usd_balance: 0.00,
+                    energy: 500
+                }]).select().single();
+                
+                data = newUser;
+            }
 
-                if (data) {
-                    currentPoints = data.points || 0;
-                    usdBalance = data.usd_balance || 0.00;
-                    
-                    let lastUpdate = data.last_energy_update || Math.floor(Date.now() / 1000);
-                    let now = Math.floor(Date.now() / 1000);
-                    let recovered = Math.floor(now - lastUpdate);
-                    
-                    currentEnergy = Math.min(maxEnergy, (data.energy !== undefined ? data.energy : maxEnergy) + recovered);
-                    updateUI();
-                } else {
-                    let initialPoints = 0;
-                    let referrerId = null;
-
-                    if (startParam && startParam.startsWith("ref_")) {
-                        referrerId = parseInt(startParam.replace("ref_", ""));
-                        if (referrerId !== user.id) {
-                            initialPoints = 200;
-                            await rewardReferrer(referrerId);
-                        }
-                    }
-
-                    await supabaseClient.from('users').insert([
-                        { id: user.id, username: usernameText, points: initialPoints, usd_balance: 0.00, referred_by: referrerId, energy: maxEnergy }
-                    ]);
-
-                    currentPoints = initialPoints;
-                    usdBalance = 0.00;
-                    updateUI();
-                }
-            } catch (err) {
-                console.error("Error loading user:", err);
+            if (data) {
+                userPoints = data.points || 0;
+                userBDT = parseFloat(data.usd_balance || 0);
+                userEnergy = data.energy !== undefined ? data.energy : 500;
+                updateUI();
             }
         }
 
-        async function rewardReferrer(refId) {
-            try {
-                let { data } = await supabaseClient.from('users').select('points').eq('id', refId).single();
-                if (data) {
-                    await supabaseClient.from('users').update({ points: (data.points || 0) + 500 }).eq('id', refId);
-                }
-            } catch (err) {}
+        // ২. ট্যাপ করে পয়েন্ট অর্জন
+        async function tapCoin() {
+            if (userEnergy <= 0) {
+                alert("আপনার এনার্জি শেষ! কিছুটা সময় অপেক্ষা করুন।");
+                return;
+            }
+
+            userPoints += 1;
+            userEnergy -= 1;
+            updateUI();
+
+            // ডাটা সেভ (Debounce ব্যাকএন্ড সেভ)
+            clearTimeout(window.saveTimer);
+            window.saveTimer = setTimeout(async () => {
+                await supabase.from('users').update({ 
+                    points: userPoints, 
+                    energy: userEnergy 
+                }).eq('id', user.id);
+            }, 1000);
         }
 
-        async function loadReferralCount() {
-            if (!supabaseClient) return;
-            try {
-                let { count } = await supabaseClient
-                    .from('users')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('referred_by', user.id);
-                
-                document.getElementById('ref-count').innerText = count || 0;
-            } catch (err) {}
+        // ৩. এনার্জি অটো রিকভারি
+        function startEnergyRecovery() {
+            setInterval(async () => {
+                if (userEnergy < maxEnergy) {
+                    userEnergy += 1;
+                    document.getElementById("energy").innerText = userEnergy;
+                }
+            }, 3000); // প্রতি ৩ সেকেন্ডে ১ এনার্জি বাড়বে
+        }
+
+        // ৪. রেফারেল সিস্টেম (+৫০০ TON Points)
+        async function checkReferral() {
+            let startParam = tg.initDataUnsafe?.start_param || "";
+            
+            if (startParam && startParam.startsWith("ref_")) {
+                let referrerId = parseInt(startParam.replace("ref_", ""));
+
+                if (referrerId !== user.id) {
+                    let { data: refUser } = await supabase.from('users').select('*').eq('id', referrerId).single();
+                    if (refUser) {
+                        await supabase.from('users').update({ points: (refUser.points || 0) + 500 }).eq('id', referrerId);
+                    }
+                }
+            }
         }
 
         function updateUI() {
-            document.getElementById('ton-points').innerText = `${currentPoints} ₿`;
-            document.getElementById('usd-balance').innerText = `$${usdBalance.toFixed(3)}`;
-            document.getElementById('energy-text').innerText = `${currentEnergy} / ${maxEnergy}`;
-            document.getElementById('energy-fill').style.width = `${(currentEnergy / maxEnergy) * 100}%`;
+            document.getElementById("points").innerText = userPoints;
+            document.getElementById("bdt_balance").innerText = "৳" + userBDT.toFixed(2);
+            document.getElementById("energy").innerText = userEnergy;
         }
 
-        const tapBtn = document.getElementById('tap-btn');
-        let saveTimeout;
+        // ৫. এড দেখা সেকশন (Monetag/Adsterra Ad Placement)
+        async function watchAd() {
+            // 💡 আপনার Monetag ডাইরেক্ট লিংক বা পপ-আপ থাকলে এখানে ট্রিগার করবেন:
+            // window.open('https://your-monetag-direct-link.com', '_blank');
 
-        tapBtn.addEventListener('click', () => {
-            if (currentEnergy > 0) {
-                currentPoints += 1;
-                currentEnergy -= 1;
-                updateUI();
-
-                clearTimeout(saveTimeout);
-                saveTimeout = setTimeout(saveData, 800);
-            }
-        });
-
-        async function saveData() {
-            if (!supabaseClient) return;
-            let nowSec = Math.floor(Date.now() / 1000);
-            await supabaseClient.from('users').update({
-                points: currentPoints,
-                usd_balance: usdBalance,
-                energy: currentEnergy,
-                last_energy_update: nowSec
-            }).eq('id', user.id);
-        }
-
-        setInterval(() => {
-            if (currentEnergy < maxEnergy) {
-                currentEnergy += 1;
-                updateUI();
-            }
-        }, 1000);
-
-        async function loadLeaderboard() {
-            if (!supabaseClient) return;
-            let { data } = await supabaseClient.from('users').select('username, points').order('points', { ascending: false }).limit(10);
+            alert("এড দেখা সম্পন্ন হয়েছে! আপনার একাউন্টে ৳০.৫০ টাকা যোগ হয়েছে।");
             
-            const listEl = document.getElementById('leaderboard-list');
-            listEl.innerHTML = "";
-
-            if(data) {
-                data.forEach((player, index) => {
-                    listEl.innerHTML += `
-                        <li class="leaderboard-item">
-                            <span>#${index + 1} ${player.username}</span>
-                            <span style="color:var(--accent-gold); font-weight:bold;">${player.points} ₿</span>
-                        </li>`;
-                });
-            }
+            userBDT += 0.50;
+            updateUI();
+            await supabase.from('users').update({ usd_balance: userBDT }).eq('id', user.id);
         }
 
-        // Monetag Rewarded Interstitial Handler
-        function watchAdTask() {
-            if (typeof show_11809090 === 'function') {
-                show_11809090({ ymid: user.id.toString() }).then(() => {
-                    usdBalance += 0.005; // এড বোনাস $0.005 USD
-                    currentPoints += 100; // ১০০ TON Points
-                    updateUI();
-                    saveData();
-                    
-                    alert('🎉 Congratulations! You earned $0.005 USD and 100 TON Points!');
-                }).catch((err) => {
-                    alert('No ad available right now. Please try again later!');
-                });
-            } else {
-                alert('Ad SDK loading... Please wait 5 seconds and try again.');
-            }
-        }
+        // ৬. উইথড্র প্রসেস
+        async function processWithdraw() {
+            let amount = parseFloat(document.getElementById("withdraw-amount").value);
+            let number = document.getElementById("withdraw-number").value;
 
-        // Process Withdrawal
-        async function processWithdrawal() {
-            const method = document.getElementById('withdraw-method').value;
-            const account = document.getElementById('withdraw-account').value.trim();
-
-            if (usdBalance < 0.50) {
-                alert('⚠️ Minimum withdrawal amount is $0.50 USD!');
+            if (!amount || amount < 20) {
+                alert("মিনিমাম উইথড্র ২০ টাকা!");
                 return;
             }
 
-            if (!account) {
-                alert('⚠️ Please enter a valid account number or wallet address!');
+            if (!number || number.length < 11) {
+                alert("সঠিক বিকাশ/নগদ নম্বর দিন!");
                 return;
             }
 
-            if(confirm(`Request withdrawal of $${usdBalance.toFixed(2)} to ${method} (${account})?`)) {
-                let currentReq = usdBalance;
-                usdBalance = 0.00;
-                updateUI();
-
-                await supabaseClient.from('users').update({
-                    usd_balance: 0.00,
-                    withdraw_status: `Pending: $${currentReq.toFixed(2)} via ${method} (${account})`
-                }).eq('id', user.id);
-
-                alert('✅ Withdrawal Request Submitted Successfully! You will receive payment shortly.');
+            if (amount > userBDT) {
+                alert("আপনার এড ইনকাম ব্যালেন্সে পর্যাপ্ত টাকা নেই!");
+                return;
             }
+
+            userBDT -= amount;
+            updateUI();
+
+            await supabase.from('users').update({ usd_balance: userBDT, withdraw_status: 'Pending' }).eq('id', user.id);
+            alert(`আপনার ৳${amount} টাকা উইথড্র রিকোয়েস্ট সফল হয়েছে!`);
         }
 
-        document.getElementById('share-ref-btn').addEventListener('click', () => {
-            const botUsername = "TapToTonBD_bot"; 
-            const refLink = `https://t.me/${botUsername}?start=ref_${user.id}`;
-            const shareText = `Join TapToTon and earn USD and TON Points instantly! 🚀`;
-            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`);
-        });
-
-        loadUserData();
+        function copyRefLink() {
+            let refInput = document.getElementById("ref-link");
+            refInput.select();
+            document.execCommand("copy");
+            alert("রেফারেল লিংক কপি হয়েছে!");
+        }
     </script>
 </body>
 </html>
