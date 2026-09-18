@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TapToTon Ultimate Mini App</title>
+    <title>TapToTon Animated Mini App</title>
 
     <!-- 🟢 Monetag Verification Meta Tag -->
     <meta name="monetag" content="4119a4c3b4eb38ddd9759beb010dc444" />
@@ -19,6 +19,10 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <!-- 🌌 Background Fullscreen Animation Overlay -->
+    <div class="bg-animated-glow"></div>
+    <div class="particles-container" id="particles-container"></div>
 
     <div class="header" id="user-display">Loading User...</div>
 
@@ -43,7 +47,7 @@
         <!-- Earn Tab -->
         <div id="tab-earn" class="tab-content active">
             <div class="tap-area">
-                <button class="tap-btn" id="tap-btn">₿</button>
+                <button class="tap-btnPulse" id="tap-btn">₿</button>
             </div>
 
             <div class="energy-box">
@@ -137,7 +141,7 @@
             </div>
         </div>
 
-        <!-- 🎧 Helpline / Support Tab (NEW) -->
+        <!-- 🎧 Helpline / Support Tab -->
         <div id="tab-help" class="tab-content">
             <div class="card-box">
                 <div class="card-title-gold">🎧 24/7 Official Helpline</div>
