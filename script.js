@@ -8,46 +8,161 @@ let supabaseClient = window.supabase ? supabase.createClient(SUPABASE_URL, SUPAB
 let user = tg.initDataUnsafe?.user || { id: 12345678, username: "TestUser", first_name: "Test" };
 let startParam = tg.initDataUnsafe?.start_param || "";
 
+// User App States
 let currentPoints = 0;
 let usdBalance = 0.00;
 let maxEnergy = 500;
 let currentEnergy = 500;
 let tapPower = 1;
 let hasAutoBot = false;
+let streakDays = 1;
 let lastDailyClaim = 0;
+let isTgTaskDone = false;
 
-const usernameText = user.username ? `@${user.username}` : (user.first_name || 'User');
-document.getElementById('user-display').innerText = usernameText;
+// Settings
+let isSoundEnabled = true;
+let currentLang = 'bn';
 
-// 🌟 Generate Fullscreen Floating Particles Dynamically
-function createBackgroundParticles() {
-    const container = document.getElementById('particles-container');
-    const particleCount = 20;
+// Audio Context for Tap Sound
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playTapSound() {
+    if (!isSoundEnabled) return;
+    try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.08);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+    } catch(e) {}
+}
 
-    for (let i = 0; i < particleCount; i++) {
+function toggleSound() {
+    isSoundEnabled = !isSoundEnabled;
+    document.getElementById('sound-btn').innerText = isSoundEnabled ? '🔊' : '🔇';
+}
+
+// 💵 Generate Floating Dollars and Currency Particles Background
+function createMoneyParticles() {
+    const container = document.getElementById('money-particles');
+    const symbols = ['$', '💵', '💲', '₿', '$'];
+    
+    for (let i = 0; i < 22; i++) {
         let particle = document.createElement('div');
-        particle.classList.add('star-particle');
-
-        let size = Math.random() * 4 + 2;
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
+        particle.classList.add('money-particle');
+        
+        // Random symbol pick
+        particle.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+        
+        // Random position and timing
         particle.style.left = `${Math.random() * 100}vw`;
-
-        let duration = Math.random() * 8 + 6;
-        let delay = Math.random() * 5;
-        particle.style.animationDuration = `${duration}s`;
-        particle.style.animationDelay = `${delay}s`;
+        particle.style.fontSize = `${Math.random() * 14 + 16}px`;
+        particle.style.animationDuration = `${Math.random() * 10 + 8}s`;
+        particle.style.animationDelay = `${Math.random() * 6}s`;
+        
+        // Green and Gold color tint variation
+        if (Math.random() > 0.5) {
+            particle.style.color = 'rgba(251, 191, 36, 0.65)';
+            particle.style.textShadow = '0 0 10px rgba(251, 191, 36, 0.4)';
+        }
 
         container.appendChild(particle);
     }
 }
-createBackgroundParticles();
+createMoneyParticles();
+
+const translations = {
+    bn: {
+        ton_balance: "TON Points (Tapping)",
+        usd_balance: "Ad Earnings (USD)",
+        daily_title: "📅 Daily Streak Check-in",
+        daily_sub: "প্রতিদিন লগইন করে বড় বড় রিওয়ার্ড ক্লেইম করুন!",
+        daily_btn: "Claim Daily Bonus",
+        boost_tap_title: "⚡ Upgrade Tapping",
+        boost_tap_sub: "প্রতি ট্যাপে পাবেন বেশি পয়েন্ট!",
+        boost_tap_btn: "Upgrade Multitap (Cost: 500 ₿)",
+        tap_power: "Current Power:",
+        bot_title: "🤖 Auto-Tap Bot",
+        bot_sub: "অফলাইনে থাকলেও পয়েন্ট জমা হতে থাকবে!",
+        bot_buy: "Buy Auto-Bot (Cost: 2000 ₿)",
+        bot_claim: "Claim Bot Earnings",
+        lead_title: "🏆 Top 10 Tappers",
+        task_ad_title: "📹 Watch Video Ads",
+        task_ad_sub: "প্রতিটি এড দেখার জন্য পাবেন $0.005 USD এবং +100 TON Points!",
+        task_ad_btn: "Watch Video Ad",
+        task_social_title: "📢 Social Quests",
+        task_social_sub: "আমাদের অফিশিয়াল টেলিগ্রাম চ্যানেলে জয়েন করে পয়েন্ট ক্লেইম করুন!",
+        withdraw_title: "💸 Instant Withdraw",
+        withdraw_sub: "মিনিমাম উইথড্র: $0.50 USD (Bkash, Nagad, TON Wallet)",
+        withdraw_btn: "Submit Request",
+        withdraw_history_title: "📜 Last Request Status",
+        ref_title: "Invite Friends!",
+        ref_sub: "Earn +500 TON Points per referral.",
+        ref_count: "Total Referrals:",
+        ref_btn: "Share Invite Link",
+        help_title: "🎧 24/7 Official Helpline",
+        help_sub: "যেকোনো সমস্যা বা উইথড্র সহায়তার জন্য সরাসরি যোগাযোগ করুন:",
+        nav_earn: "Earn", nav_boost: "Boost", nav_ranks: "Ranks", nav_ads: "Ads", nav_withdraw: "Withdraw", nav_friends: "Friends", nav_help: "Help"
+    },
+    en: {
+        ton_balance: "TON Points (Tapping)",
+        usd_balance: "Ad Earnings (USD)",
+        daily_title: "📅 Daily Streak Check-in",
+        daily_sub: "Log in daily to claim bigger rewards!",
+        daily_btn: "Claim Daily Bonus",
+        boost_tap_title: "⚡ Upgrade Tapping",
+        boost_tap_sub: "Get more points per tap!",
+        boost_tap_btn: "Upgrade Multitap (Cost: 500 ₿)",
+        tap_power: "Current Power:",
+        bot_title: "🤖 Auto-Tap Bot",
+        bot_sub: "Mine points even when you are offline!",
+        bot_buy: "Buy Auto-Bot (Cost: 2000 ₿)",
+        bot_claim: "Claim Bot Earnings",
+        lead_title: "🏆 Top 10 Tappers",
+        task_ad_title: "📹 Watch Video Ads",
+        task_ad_sub: "Get $0.005 USD and +100 TON Points per ad!",
+        task_ad_btn: "Watch Video Ad",
+        task_social_title: "📢 Social Quests",
+        task_social_sub: "Join our official Telegram channel and earn bonus!",
+        withdraw_title: "💸 Instant Withdraw",
+        withdraw_sub: "Minimum payout: $0.50 USD (Bkash, Nagad, TON)",
+        withdraw_btn: "Submit Request",
+        withdraw_history_title: "📜 Last Request Status",
+        ref_title: "Invite Friends!",
+        ref_sub: "Earn +500 TON Points per referral.",
+        ref_count: "Total Referrals:",
+        ref_btn: "Share Invite Link",
+        help_title: "🎧 24/7 Official Helpline",
+        help_sub: "Contact support for instant assistance:",
+        nav_earn: "Earn", nav_boost: "Boost", nav_ranks: "Ranks", nav_ads: "Ads", nav_withdraw: "Withdraw", nav_friends: "Friends", nav_help: "Help"
+    }
+};
+
+function toggleLanguage() {
+    currentLang = currentLang === 'bn' ? 'en' : 'bn';
+    document.getElementById('lang-btn').innerText = currentLang === 'bn' ? '🌐 EN' : '🌐 BN';
+    
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[currentLang][key]) {
+            el.innerText = translations[currentLang][key];
+        }
+    });
+}
+
+const usernameText = user.username ? `@${user.username}` : (user.first_name || 'User');
+document.getElementById('user-display').innerText = usernameText;
 
 function switchTab(event, tabName) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
-    document.getElementById(`tab-${tabName}`).classList.add('active');
+    const activeTab = document.getElementById(`tab-${tabName}`);
+    activeTab.classList.add('active');
+    
     if(event && event.currentTarget) {
         event.currentTarget.classList.add('active');
     }
@@ -56,6 +171,7 @@ function switchTab(event, tabName) {
     if(tabName === 'ref') loadReferralCount();
 }
 
+// 🛡️ SAFE DATA LOADING
 async function loadUserData() {
     if (!supabaseClient) return;
 
@@ -67,7 +183,9 @@ async function loadUserData() {
             usdBalance = parseFloat(data.usd_balance || 0.00);
             tapPower = data.tap_power || 1;
             hasAutoBot = data.has_autobot || false;
+            streakDays = data.streak_days || 1;
             lastDailyClaim = data.last_daily_claim || 0;
+            isTgTaskDone = data.is_tg_task_done || false;
             
             let lastUpdate = data.last_energy_update || Math.floor(Date.now() / 1000);
             let now = Math.floor(Date.now() / 1000);
@@ -80,10 +198,16 @@ async function loadUserData() {
                 document.getElementById('bot-claim-btn').style.display = 'block';
             }
 
+            if (isTgTaskDone) {
+                document.getElementById('tg-task-btn').innerText = "✅ Channel Joined";
+                document.getElementById('tg-task-btn').disabled = true;
+            }
+
             if (data.withdraw_status) {
                 document.getElementById('withdraw-history').innerText = data.withdraw_status;
             }
 
+            document.getElementById('streak-count').innerText = streakDays;
             updateUI();
         } else {
             let initialPoints = 0;
@@ -99,7 +223,7 @@ async function loadUserData() {
 
             await supabaseClient.from('users').upsert([
                 { id: user.id, username: usernameText, points: initialPoints, usd_balance: 0.00, referred_by: referrerId, energy: maxEnergy }
-            ]);
+            ], { onConflict: 'id' });
 
             currentPoints = initialPoints;
             usdBalance = 0.00;
@@ -172,25 +296,26 @@ function createTapParticle(x, y) {
     const particle = document.createElement('div');
     particle.classList.add('tap-particle');
     particle.innerText = `+${tapPower}`;
-    
     particle.style.left = `${x - 15}px`;
     particle.style.top = `${y - 20}px`;
-
     document.getElementById('main-content').appendChild(particle);
 
-    setTimeout(() => {
-        particle.remove();
-    }, 900);
+    setTimeout(() => { particle.remove(); }, 900);
 }
 
 const tapBtn = document.getElementById('tap-btn');
 let saveTimeout;
+let tapClickCounter = 0;
 
 tapBtn.addEventListener('click', (e) => {
+    tapClickCounter++;
+    if(tapClickCounter > 25) return; 
+
     if (currentEnergy >= tapPower) {
         currentPoints += tapPower;
         currentEnergy -= tapPower;
         updateUI();
+        playTapSound();
 
         const rect = tapBtn.getBoundingClientRect();
         const x = e.clientX || (rect.left + rect.width / 2);
@@ -203,6 +328,8 @@ tapBtn.addEventListener('click', (e) => {
     }
 });
 
+setInterval(() => { tapClickCounter = 0; }, 1000);
+
 async function saveData() {
     if (!supabaseClient) return;
     let nowSec = Math.floor(Date.now() / 1000);
@@ -214,8 +341,11 @@ async function saveData() {
         energy: currentEnergy,
         tap_power: tapPower,
         has_autobot: hasAutoBot,
+        streak_days: streakDays,
+        last_daily_claim: lastDailyClaim,
+        is_tg_task_done: isTgTaskDone,
         last_energy_update: nowSec
-    });
+    }, { onConflict: 'id' });
 }
 
 setInterval(() => {
@@ -232,12 +362,16 @@ async function claimDailyReward() {
         return;
     }
     
-    currentPoints += 250;
+    let bonusAmount = streakDays * 200;
+    currentPoints += bonusAmount;
     lastDailyClaim = now;
+    streakDays += 1;
+    document.getElementById('streak-count').innerText = streakDays;
+
     updateUI();
     saveData();
 
-    alert('🎉 Claimed +250 TON Points Daily Reward!');
+    alert(`🎉 Claimed +${bonusAmount} TON Points (Streak Day ${streakDays - 1})!`);
 }
 
 async function buyMultitap() {
@@ -294,6 +428,21 @@ function watchAdTask() {
     }
 }
 
+function completeTelegramTask() {
+    tg.openTelegramLink("https://t.me/TapToTonCommunity");
+    setTimeout(() => {
+        if (!isTgTaskDone) {
+            isTgTaskDone = true;
+            currentPoints += 300;
+            document.getElementById('tg-task-btn').innerText = "✅ Channel Joined";
+            document.getElementById('tg-task-btn').disabled = true;
+            updateUI();
+            saveData();
+            alert("🎉 +300 TON Points added for joining official channel!");
+        }
+    }, 3000);
+}
+
 async function processWithdrawal() {
     const method = document.getElementById('withdraw-method').value;
     const account = document.getElementById('withdraw-account').value.trim();
@@ -321,7 +470,7 @@ async function processWithdrawal() {
             username: usernameText,
             usd_balance: 0.00,
             withdraw_status: statusText
-        });
+        }, { onConflict: 'id' });
 
         alert('✅ Withdrawal Request Submitted Successfully!');
     }
