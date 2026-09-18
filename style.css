@@ -1,6 +1,6 @@
 :root {
-    --bg-color: #080c14;
-    --card-bg: rgba(21, 28, 44, 0.85);
+    --bg-color: #050811;
+    --card-bg: rgba(15, 23, 42, 0.75);
     --accent-gold: #fbbf24;
     --accent-green: #10b981;
     --accent-blue: #3b82f6;
@@ -10,7 +10,7 @@
 
 body {
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background: radial-gradient(circle at top, #111827 0%, #080c14 100%);
+    background-color: var(--bg-color);
     color: var(--text-color);
     margin: 0;
     padding: 0;
@@ -19,13 +19,69 @@ body {
     height: 100vh;
     user-select: none;
     overflow: hidden;
+    position: relative;
+}
+
+/* 🌌 Fullscreen Glowing Animated Background */
+.bg-animated-glow {
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, rgba(59, 130, 246, 0.1) 40%, transparent 70%);
+    animation: rotateGlow 14s linear infinite;
+    z-index: 0;
+    pointer-events: none;
+}
+
+@keyframes rotateGlow {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.15); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+/* 🌟 Fullscreen Floating Star Particles */
+.particles-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.star-particle {
+    position: absolute;
+    background: #ffffff;
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: floatParticle linear infinite;
+}
+
+@keyframes floatParticle {
+    0% {
+        transform: translateY(100vh) scale(0);
+        opacity: 0;
+    }
+    50% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(-10vh) scale(1.2);
+        opacity: 0;
+    }
 }
 
 .header {
+    position: relative;
+    z-index: 2;
     padding: 12px;
     text-align: center;
-    background: rgba(15, 23, 42, 0.9);
-    backdrop-filter: blur(8px);
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     font-weight: 700;
     color: var(--accent-gold);
@@ -34,7 +90,9 @@ body {
 }
 
 .marquee-container {
-    background: rgba(245, 158, 11, 0.12);
+    position: relative;
+    z-index: 2;
+    background: rgba(245, 158, 11, 0.15);
     color: var(--accent-gold);
     padding: 6px 10px;
     font-size: 12px;
@@ -42,13 +100,14 @@ body {
 }
 
 .main-content {
+    position: relative;
+    z-index: 2;
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 12px;
     overflow-y: auto;
-    position: relative;
 }
 
 .tab-content {
@@ -76,16 +135,16 @@ body {
 }
 
 .balance-card {
-    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     padding: 12px;
     border-radius: 16px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    backdrop-filter: blur(15px);
 }
 
-.glow-gold { border-bottom: 2px solid var(--accent-gold); }
-.glow-green { border-bottom: 2px solid var(--accent-green); }
+.glow-gold { border-bottom: 2px solid var(--accent-gold); box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
+.glow-green { border-bottom: 2px solid var(--accent-green); box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
 
 .balance-title {
     font-size: 10px;
@@ -111,7 +170,7 @@ body {
     width: 100%;
 }
 
-.tap-btn {
+.tap-btnPulse {
     width: 160px;
     height: 160px;
     border-radius: 50%;
@@ -121,37 +180,38 @@ body {
     font-size: 50px;
     font-weight: 900;
     cursor: pointer;
-    box-shadow: 0 0 35px rgba(245, 158, 11, 0.5);
-    transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 0 40px rgba(245, 158, 11, 0.6);
+    transition: transform 0.08s ease;
     outline: none;
     margin: 15px 0;
     touch-action: manipulation;
+    animation: pulseButton 2s infinite ease-in-out;
 }
 
-.tap-btn:active { 
-    transform: scale(0.92); 
+@keyframes pulseButton {
+    0% { box-shadow: 0 0 30px rgba(245, 158, 11, 0.5); transform: scale(1); }
+    50% { box-shadow: 0 0 50px rgba(245, 158, 11, 0.8); transform: scale(1.02); }
+    100% { box-shadow: 0 0 30px rgba(245, 158, 11, 0.5); transform: scale(1); }
+}
+
+.tap-btnPulse:active { 
+    transform: scale(0.90) !important; 
 }
 
 .tap-particle {
     position: absolute;
-    font-size: 26px;
+    font-size: 28px;
     font-weight: 900;
     color: var(--accent-gold);
-    text-shadow: 0 0 10px rgba(245, 158, 11, 0.9);
+    text-shadow: 0 0 12px rgba(245, 158, 11, 1);
     pointer-events: none;
-    animation: floatUp 1s ease-out forwards;
+    animation: floatUp 0.9s cubic-bezier(0.25, 1, 0.5, 1) forwards;
     z-index: 99;
 }
 
 @keyframes floatUp {
-    0% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(-80px) scale(1.4);
-    }
+    0% { opacity: 1; transform: translateY(0) scale(0.8); }
+    100% { opacity: 0; transform: translateY(-90px) scale(1.5); }
 }
 
 .energy-box {
@@ -166,7 +226,7 @@ body {
 .energy-bar-bg {
     width: 100%;
     height: 10px;
-    background: #1e293b;
+    background: rgba(30, 41, 59, 0.8);
     border-radius: 10px;
     overflow: hidden;
     margin-top: 6px;
@@ -182,14 +242,14 @@ body {
 
 .card-box {
     background: var(--card-bg);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 16px;
     border-radius: 16px;
     width: 100%;
     box-sizing: border-box;
     margin-top: 12px;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    backdrop-filter: blur(15px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
 }
 
 .card-title-gold { font-size: 16px; font-weight: bold; color: var(--accent-gold); }
@@ -201,7 +261,7 @@ body {
     font-size: 11px;
     margin-top: 8px;
     color: var(--accent-gold);
-    background: rgba(245, 158, 11, 0.1);
+    background: rgba(245, 158, 11, 0.15);
     padding: 4px 8px;
     border-radius: 6px;
     display: inline-block;
@@ -218,32 +278,25 @@ body {
     cursor: pointer;
     width: 100%;
     margin-top: 10px;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+    transition: transform 0.1s ease;
 }
 
-.btn-green { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
-.btn-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+.btn-action:active { transform: scale(0.97); }
 
-/* Helpline Section Styles */
+.btn-green { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+.btn-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
+
 .contact-card {
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 12px;
     margin-top: 10px;
 }
 
-.contact-name {
-    font-weight: bold;
-    color: var(--text-color);
-    font-size: 14px;
-}
-
-.contact-detail {
-    font-size: 12px;
-    color: var(--text-secondary);
-    margin-top: 3px;
-}
+.contact-name { font-weight: bold; color: var(--text-color); font-size: 14px; }
+.contact-detail { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
 
 .contact-actions {
     display: grid;
@@ -262,15 +315,15 @@ body {
     color: white;
 }
 
-.btn-whatsapp { background: #25D366; }
-.btn-call { background: #3b82f6; }
+.btn-whatsapp { background: #25D366; box-shadow: 0 3px 10px rgba(37, 211, 102, 0.3); }
+.btn-call { background: #3b82f6; box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3); }
 
 .input-field {
     width: 100%;
     padding: 12px;
     margin-top: 10px;
     border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     background: #0f172a;
     color: white;
     box-sizing: border-box;
@@ -292,14 +345,15 @@ body {
     font-size: 13px;
 }
 
-/* Scrollable Bottom Navbar */
 .navbar {
+    position: relative;
+    z-index: 2;
     display: flex;
     overflow-x: auto;
-    background-color: rgba(15, 23, 42, 0.95);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: rgba(15, 23, 42, 0.9);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding: 8px 0;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(15px);
 }
 
 .nav-item {
@@ -311,6 +365,7 @@ body {
     cursor: pointer;
     min-width: 60px;
     flex-shrink: 0;
+    transition: color 0.2s ease;
 }
 
 .nav-item.active {
