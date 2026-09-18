@@ -8,7 +8,7 @@ let supabaseClient = window.supabase ? supabase.createClient(SUPABASE_URL, SUPAB
 let user = tg.initDataUnsafe?.user || { id: 12345678, username: "TestUser", first_name: "Test" };
 let startParam = tg.initDataUnsafe?.start_param || "";
 
-// User App States
+// States
 let currentPoints = 0;
 let usdBalance = 0.00;
 let maxEnergy = 500;
@@ -23,7 +23,7 @@ let isTgTaskDone = false;
 let isSoundEnabled = true;
 let currentLang = 'bn';
 
-// Audio Context for Tap Sound
+// Audio Context
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playTapSound() {
     if (!isSoundEnabled) return;
@@ -32,8 +32,8 @@ function playTapSound() {
         const gain = audioCtx.createGain();
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(450, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.08);
         osc.start();
         osc.stop(audioCtx.currentTime + 0.08);
@@ -45,28 +45,27 @@ function toggleSound() {
     document.getElementById('sound-btn').innerText = isSoundEnabled ? '🔊' : '🔇';
 }
 
-// 💵 Generate Floating Dollars and Currency Particles Background
+// 💵 GENERATE ANIMATED FLOATING DOLLARS & CURRENCY PARTICLES
 function createMoneyParticles() {
     const container = document.getElementById('money-particles');
-    const symbols = ['$', '💵', '💲', '₿', '$'];
+    if (!container) return;
     
-    for (let i = 0; i < 22; i++) {
+    const symbols = ['$', '💵', '💲', '₿', '$', '💵'];
+    
+    for (let i = 0; i < 25; i++) {
         let particle = document.createElement('div');
         particle.classList.add('money-particle');
         
-        // Random symbol pick
         particle.innerText = symbols[Math.floor(Math.random() * symbols.length)];
         
-        // Random position and timing
         particle.style.left = `${Math.random() * 100}vw`;
         particle.style.fontSize = `${Math.random() * 14 + 16}px`;
-        particle.style.animationDuration = `${Math.random() * 10 + 8}s`;
-        particle.style.animationDelay = `${Math.random() * 6}s`;
+        particle.style.animationDuration = `${Math.random() * 8 + 7}s`;
+        particle.style.animationDelay = `${Math.random() * 5}s`;
         
-        // Green and Gold color tint variation
         if (Math.random() > 0.5) {
-            particle.style.color = 'rgba(251, 191, 36, 0.65)';
-            particle.style.textShadow = '0 0 10px rgba(251, 191, 36, 0.4)';
+            particle.style.color = 'rgba(251, 191, 36, 0.7)';
+            particle.style.textShadow = '0 0 10px rgba(251, 191, 36, 0.5)';
         }
 
         container.appendChild(particle);
@@ -171,7 +170,7 @@ function switchTab(event, tabName) {
     if(tabName === 'ref') loadReferralCount();
 }
 
-// 🛡️ SAFE DATA LOADING
+// Data loading and logic
 async function loadUserData() {
     if (!supabaseClient) return;
 
@@ -300,7 +299,7 @@ function createTapParticle(x, y) {
     particle.style.top = `${y - 20}px`;
     document.getElementById('main-content').appendChild(particle);
 
-    setTimeout(() => { particle.remove(); }, 900);
+    setTimeout(() => { particle.remove(); }, 850);
 }
 
 const tapBtn = document.getElementById('tap-btn');
@@ -371,7 +370,7 @@ async function claimDailyReward() {
     updateUI();
     saveData();
 
-    alert(`🎉 Claimed +${bonusAmount} TON Points (Streak Day ${streakDays - 1})!`);
+    alert(`🎉 Claimed +${bonusAmount} TON Points!`);
 }
 
 async function buyMultitap() {
@@ -397,7 +396,7 @@ async function buyAutoBot() {
     document.getElementById('bot-claim-btn').style.display = 'block';
     updateUI();
     saveData();
-    alert('🤖 Auto-Bot Purchased! It will now mine points for you.');
+    alert('🤖 Auto-Bot Purchased!');
 }
 
 function claimBotEarnings() {
@@ -405,7 +404,7 @@ function claimBotEarnings() {
     currentPoints += botBonus;
     updateUI();
     saveData();
-    alert(`🎉 Auto-Bot mined +${botBonus} TON Points for you!`);
+    alert(`🎉 Auto-Bot mined +${botBonus} TON Points!`);
 }
 
 function watchAdTask() {
@@ -416,7 +415,7 @@ function watchAdTask() {
             updateUI();
             saveData();
             alert('🎉 Earned $0.005 USD and +100 TON Points!');
-        }).catch((err) => {
+        }).catch(() => {
             alert('No ad available right now. Try again later!');
         });
     } else {
@@ -438,7 +437,7 @@ function completeTelegramTask() {
             document.getElementById('tg-task-btn').disabled = true;
             updateUI();
             saveData();
-            alert("🎉 +300 TON Points added for joining official channel!");
+            alert("🎉 +300 TON Points added!");
         }
     }, 3000);
 }
