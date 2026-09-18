@@ -2,8 +2,8 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TapToTon Animated Mini App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TapToTon Ultimate Pro Mini App</title>
 
     <!-- 🟢 Monetag Verification Meta Tag -->
     <meta name="monetag" content="4119a4c3b4eb38ddd9759beb010dc444" />
@@ -20,14 +20,21 @@
 </head>
 <body>
 
-    <!-- 🌌 Background Fullscreen Animation Overlay -->
+    <!-- 🌌 Background Glowing & Floating Money Particles -->
     <div class="bg-animated-glow"></div>
-    <div class="particles-container" id="particles-container"></div>
+    <div class="money-particles-container" id="money-particles"></div>
 
-    <div class="header" id="user-display">Loading User...</div>
+    <!-- Top Bar Controls -->
+    <div class="top-bar">
+        <div class="user-info" id="user-display">Loading...</div>
+        <div class="top-controls">
+            <button class="icon-btn" id="sound-btn" onclick="toggleSound()">🔊</button>
+            <button class="icon-btn" id="lang-btn" onclick="toggleLanguage()">🌐 EN</button>
+        </div>
+    </div>
 
     <div class="marquee-container">
-        <marquee behavior="scroll" direction="left" scrollamount="5">
+        <marquee behavior="scroll" direction="left" scrollamount="5" id="marquee-text">
             🚀 <b>এড দেখুন এবং সরাসরি $ ডলার আয় করে ইনস্ট্যান্ট উইথড্র নিন!</b> যেকোনো প্রয়োজনে হেল্পলাইনে যোগাযোগ করুন! 🎁
         </marquee>
     </div>
@@ -35,17 +42,17 @@
     <div class="main-content" id="main-content">
         <div class="balance-grid">
             <div class="balance-card glow-gold">
-                <div class="balance-title">TON Points (Tapping)</div>
+                <div class="balance-title" data-i18n="ton_balance">TON Points (Tapping)</div>
                 <div class="balance-value val-ton" id="ton-points">0 ₿</div>
             </div>
             <div class="balance-card glow-green">
-                <div class="balance-title">Ad Earnings (USD)</div>
+                <div class="balance-title" data-i18n="usd_balance">Ad Earnings (USD)</div>
                 <div class="balance-value val-usd" id="usd-balance">$0.000</div>
             </div>
         </div>
 
         <!-- Earn Tab -->
-        <div id="tab-earn" class="tab-content active">
+        <div id="tab-earn" class="tab-content active page-fade">
             <div class="tap-area">
                 <button class="tap-btnPulse" id="tap-btn">₿</button>
             </div>
@@ -58,33 +65,34 @@
             </div>
 
             <div class="card-box text-center">
-                <div class="card-title-gold">📅 Daily Reward Check-in</div>
-                <p class="card-subtext">প্রতিদিন ক্লেইম করুন <b>+২৫০ TON Points</b>!</p>
-                <button class="btn-action" id="daily-btn" onclick="claimDailyReward()">Claim Daily Bonus</button>
+                <div class="card-title-gold" data-i18n="daily_title">📅 Daily Streak Check-in</div>
+                <p class="card-subtext" data-i18n="daily_sub">প্রতিদিন লগইন করে বড় বড় রিওয়ার্ড ক্লেইম করুন!</p>
+                <div class="streak-badge">Streak Day: <b id="streak-count">1</b></div>
+                <button class="btn-action" id="daily-btn" onclick="claimDailyReward()" data-i18n="daily_btn">Claim Daily Bonus</button>
             </div>
         </div>
 
         <!-- Boost Tab -->
-        <div id="tab-boost" class="tab-content">
+        <div id="tab-boost" class="tab-content page-fade">
             <div class="card-box">
-                <div class="card-title-gold">⚡ Upgrade Tapping</div>
-                <p class="card-subtext">প্রতি ট্যাপে পাবেন বেশি পয়েন্ট!</p>
-                <button class="btn-action" onclick="buyMultitap()">Upgrade Multitap (Cost: 500 ₿)</button>
-                <div class="status-badge">Current Power: <b id="multitap-lvl">1</b>x Per Tap</div>
+                <div class="card-title-gold" data-i18n="boost_tap_title">⚡ Upgrade Tapping</div>
+                <p class="card-subtext" data-i18n="boost_tap_sub">প্রতি ট্যাপে পাবেন বেশি পয়েন্ট!</p>
+                <button class="btn-action" onclick="buyMultitap()" data-i18n="boost_tap_btn">Upgrade Multitap (Cost: 500 ₿)</button>
+                <div class="status-badge"><span data-i18n="tap_power">Current Power:</span> <b id="multitap-lvl">1</b>x</div>
             </div>
 
             <div class="card-box">
-                <div class="card-title-blue">🤖 Auto-Tap Bot</div>
-                <p class="card-subtext">অফলাইনে থাকলেও পয়েন্ট জমা হতে থাকবে!</p>
-                <button class="btn-action btn-blue" id="bot-buy-btn" onclick="buyAutoBot()">Buy Auto-Bot (Cost: 2000 ₿)</button>
-                <button class="btn-action btn-green" id="bot-claim-btn" style="display:none;" onclick="claimBotEarnings()">Claim Bot Earnings</button>
+                <div class="card-title-blue" data-i18n="bot_title">🤖 Auto-Tap Bot</div>
+                <p class="card-subtext" data-i18n="bot_sub">অফলাইনে থাকলেও পয়েন্ট জমা হতে থাকবে!</p>
+                <button class="btn-action btn-blue" id="bot-buy-btn" onclick="buyAutoBot()" data-i18n="bot_buy">Buy Auto-Bot (Cost: 2000 ₿)</button>
+                <button class="btn-action btn-green" id="bot-claim-btn" style="display:none;" onclick="claimBotEarnings()" data-i18n="bot_claim">Claim Bot Earnings</button>
             </div>
         </div>
 
         <!-- Leaderboard Tab -->
-        <div id="tab-lead" class="tab-content">
+        <div id="tab-lead" class="tab-content page-fade">
             <div class="card-box">
-                <div class="card-title-gold">🏆 Top 10 Tappers</div>
+                <div class="card-title-gold" data-i18n="lead_title">🏆 Top 10 Tappers</div>
                 <ul class="leaderboard-list" id="leaderboard-list">
                     <li>Loading ranks...</li>
                 </ul>
@@ -92,23 +100,25 @@
         </div>
 
         <!-- Tasks Tab -->
-        <div id="tab-tasks" class="tab-content">
+        <div id="tab-tasks" class="tab-content page-fade">
             <div class="card-box">
-                <div class="card-title-green">📹 Watch Video Ads</div>
-                <p class="card-subtext">
-                    প্রতিটি এড দেখার জন্য পাবেন <b>$0.005 USD</b> এবং <b>+100 TON Points</b>!
-                </p>
-                <button class="btn-action btn-green" onclick="watchAdTask()">Watch Video Ad</button>
+                <div class="card-title-green" data-i18n="task_ad_title">📹 Watch Video Ads</div>
+                <p class="card-subtext" data-i18n="task_ad_sub">প্রতিটি এড দেখার জন্য পাবেন $0.005 USD এবং +100 TON Points!</p>
+                <button class="btn-action btn-green" onclick="watchAdTask()" data-i18n="task_ad_btn">Watch Video Ad</button>
+            </div>
+
+            <div class="card-box">
+                <div class="card-title-blue" data-i18n="task_social_title">📢 Social Quests</div>
+                <p class="card-subtext" data-i18n="task_social_sub">আমাদের অফিশিয়াল টেলিগ্রাম চ্যানেলে জয়েন করে পয়েন্ট ক্লেইম করুন!</p>
+                <button class="btn-action btn-blue" id="tg-task-btn" onclick="completeTelegramTask()">Join Telegram Channel (+300 ₿)</button>
             </div>
         </div>
 
         <!-- Withdraw Tab -->
-        <div id="tab-withdraw" class="tab-content">
+        <div id="tab-withdraw" class="tab-content page-fade">
             <div class="card-box">
-                <div class="card-title-green">💸 Instant Withdraw</div>
-                <p class="card-subtext">
-                    মিনিমাম উইথড্র: <b>$0.50 USD</b> (Bkash, Nagad, TON Wallet)
-                </p>
+                <div class="card-title-green" data-i18n="withdraw_title">💸 Instant Withdraw</div>
+                <p class="card-subtext" data-i18n="withdraw_sub">মিনিমাম উইথড্র: $0.50 USD (Bkash, Nagad, TON Wallet)</p>
                 
                 <select class="input-field" id="withdraw-method">
                     <option value="Bkash">Bkash Personal</option>
@@ -118,34 +128,32 @@
 
                 <input type="text" class="input-field" id="withdraw-account" placeholder="Account Number / Address">
                 
-                <button class="btn-action btn-green" onclick="processWithdrawal()">Submit Request</button>
+                <button class="btn-action btn-green" onclick="processWithdrawal()" data-i18n="withdraw_btn">Submit Request</button>
             </div>
 
             <div class="card-box">
-                <div class="card-subtext" style="font-weight:bold;">📜 Last Request Status</div>
+                <div class="card-subtext" style="font-weight:bold;" data-i18n="withdraw_history_title">📜 Last Request Status</div>
                 <div id="withdraw-history" style="font-size: 12px; color: var(--accent-gold); margin-top: 5px;">None</div>
             </div>
         </div>
 
         <!-- Friends Tab -->
-        <div id="tab-ref" class="tab-content">
+        <div id="tab-ref" class="tab-content page-fade">
             <div class="card-box text-center">
-                <div class="card-title-gold">Invite Friends!</div>
-                <p class="card-subtext">
-                    Earn <b>+500 TON Points</b> per referral.
-                </p>
+                <div class="card-title-gold" data-i18n="ref_title">Invite Friends!</div>
+                <p class="card-subtext" data-i18n="ref_sub">Earn +500 TON Points per referral.</p>
                 <div class="status-badge">
-                    Total Referrals: <b id="ref-count">0</b>
+                    <span data-i18n="ref_count">Total Referrals:</span> <b id="ref-count">0</b>
                 </div>
-                <button class="btn-action" id="share-ref-btn">Share Invite Link</button>
+                <button class="btn-action" id="share-ref-btn" data-i18n="ref_btn">Share Invite Link</button>
             </div>
         </div>
 
-        <!-- 🎧 Helpline / Support Tab -->
-        <div id="tab-help" class="tab-content">
+        <!-- 🎧 Helpline Tab -->
+        <div id="tab-help" class="tab-content page-fade">
             <div class="card-box">
-                <div class="card-title-gold">🎧 24/7 Official Helpline</div>
-                <p class="card-subtext">যেকোনো সমস্যা বা উইথড্র সহায়তার জন্য সরাসরি যোগাযোগ করুন:</p>
+                <div class="card-title-gold" data-i18n="help_title">🎧 24/7 Official Helpline</div>
+                <p class="card-subtext" data-i18n="help_sub">যেকোনো সমস্যা বা উইথড্র সহায়তার জন্য সরাসরি যোগাযোগ করুন:</p>
                 
                 <!-- Contact 1 -->
                 <div class="contact-card">
@@ -174,13 +182,13 @@
 
     <!-- Navigation Bar -->
     <div class="navbar">
-        <div class="nav-item active" onclick="switchTab(event, 'earn')"><span>⚡</span><span>Earn</span></div>
-        <div class="nav-item" onclick="switchTab(event, 'boost')"><span>🚀</span><span>Boost</span></div>
-        <div class="nav-item" onclick="switchTab(event, 'lead')"><span>🏆</span><span>Ranks</span></div>
-        <div class="nav-item" onclick="switchTab(event, 'tasks')"><span>🎯</span><span>Ads</span></div>
-        <div class="nav-item" onclick="switchTab(event, 'withdraw')"><span>💳</span><span>Withdraw</span></div>
-        <div class="nav-item" onclick="switchTab(event, 'ref')"><span>👥</span><span>Friends</span></div>
-        <div class="nav-item" onclick="switchTab(event, 'help')"><span>🎧</span><span>Helpline</span></div>
+        <div class="nav-item active" onclick="switchTab(event, 'earn')"><span>⚡</span><span data-i18n="nav_earn">Earn</span></div>
+        <div class="nav-item" onclick="switchTab(event, 'boost')"><span>🚀</span><span data-i18n="nav_boost">Boost</span></div>
+        <div class="nav-item" onclick="switchTab(event, 'lead')"><span>🏆</span><span data-i18n="nav_ranks">Ranks</span></div>
+        <div class="nav-item" onclick="switchTab(event, 'tasks')"><span>🎯</span><span data-i18n="nav_ads">Ads</span></div>
+        <div class="nav-item" onclick="switchTab(event, 'withdraw')"><span>💳</span><span data-i18n="nav_withdraw">Withdraw</span></div>
+        <div class="nav-item" onclick="switchTab(event, 'ref')"><span>👥</span><span data-i18n="nav_friends">Friends</span></div>
+        <div class="nav-item" onclick="switchTab(event, 'help')"><span>🎧</span><span data-i18n="nav_help">Help</span></div>
     </div>
 
     <!-- 🟢 Monetag Vignette Banner Script -->
