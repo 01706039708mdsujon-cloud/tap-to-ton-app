@@ -4,286 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TapToTon Ultimate Mini App</title>
-    <!-- Telegram WebApp SDK -->
+
+    <!-- 🟢 Monetag Verification Meta Tag -->
+    <meta name="monetag" content="4119a4c3b4eb38ddd9759beb010dc444" />
+
+    <!-- Telegram SDK & Supabase JS -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Supabase JS Client -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
-    <!-- Monetag Rewarded Interstitial Script (Zone 11809090) -->
+    <!-- Monetag Rewarded Interstitial Script -->
     <script src="//libtl.com/sdk.js" data-zone="11809090" data-sdk="show_11809090"></script>
-    
-    <style>
-        :root {
-            --bg-color: #0b0f19;
-            --card-bg: #151c2c;
-            --accent-gold: #f59e0b;
-            --accent-green: #10b981;
-            --accent-blue: #3b82f6;
-            --text-color: #f8fafc;
-            --text-secondary: #94a3b8;
-        }
 
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            user-select: none;
-            overflow: hidden;
-        }
-
-        .header {
-            padding: 10px;
-            text-align: center;
-            background: var(--card-bg);
-            border-bottom: 1px solid #1e293b;
-            font-weight: 600;
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-
-        .marquee-container {
-            background: rgba(245, 158, 11, 0.12);
-            color: var(--accent-gold);
-            padding: 6px 10px;
-            font-size: 12px;
-            border-bottom: 1px solid #334155;
-        }
-
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 12px;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        .tab-content {
-            display: none;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        .tab-content.active {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* Dual Balance Grid */
-        .balance-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            width: 100%;
-            margin-bottom: 12px;
-        }
-
-        .balance-card {
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            border: 1px solid #334155;
-            padding: 10px;
-            border-radius: 14px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        .balance-title {
-            font-size: 10px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-
-        .balance-value {
-            font-size: 20px;
-            font-weight: 800;
-            margin-top: 2px;
-        }
-
-        .val-ton { color: var(--accent-gold); }
-        .val-usd { color: var(--accent-green); }
-
-        .tap-area {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-
-        .tap-btn {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 35% 35%, #ffe066 0%, #f59e0b 50%, #b45309 100%);
-            border: 6px solid #fef08a;
-            color: #451a03;
-            font-size: 45px;
-            font-weight: 900;
-            cursor: pointer;
-            box-shadow: 0 0 25px rgba(245, 158, 11, 0.4);
-            transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            outline: none;
-            margin: 10px 0;
-            touch-action: manipulation;
-        }
-
-        .tap-btn:active { 
-            transform: scale(0.92); 
-        }
-
-        /* ✨ Tap Floating Animation Styles */
-        .tap-particle {
-            position: absolute;
-            font-size: 24px;
-            font-weight: 900;
-            color: var(--accent-gold);
-            text-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
-            pointer-events: none;
-            animation: floatUp 1s ease-out forwards;
-            z-index: 99;
-        }
-
-        @keyframes floatUp {
-            0% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-80px) scale(1.4);
-            }
-        }
-
-        .energy-box {
-            width: 100%;
-            max-width: 250px;
-            font-size: 12px;
-            color: var(--accent-gold);
-            font-weight: bold;
-        }
-
-        .energy-bar-bg {
-            width: 100%;
-            height: 8px;
-            background: #1e293b;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 4px;
-            border: 1px solid #334155;
-        }
-
-        .energy-bar-fill {
-            height: 100%;
-            width: 100%;
-            background: linear-gradient(90deg, #f59e0b, #ef4444);
-            transition: width 0.2s ease;
-        }
-
-        .card-box {
-            background: var(--card-bg);
-            border: 1px solid #334155;
-            padding: 15px;
-            border-radius: 14px;
-            width: 100%;
-            box-sizing: border-box;
-            margin-top: 10px;
-            text-align: left;
-        }
-
-        .btn-action {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: #ffffff;
-            border: none;
-            padding: 10px 15px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 8px;
-        }
-
-        .btn-green { background: linear-gradient(135deg, #10b981, #059669); }
-        .btn-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-
-        .input-field {
-            width: 100%;
-            padding: 10px;
-            margin-top: 8px;
-            border-radius: 8px;
-            border: 1px solid #334155;
-            background: #0f172a;
-            color: white;
-            box-sizing: border-box;
-            outline: none;
-        }
-
-        .leaderboard-list {
-            list-style: none;
-            padding: 0;
-            margin: 10px 0 0 0;
-            width: 100%;
-        }
-
-        .leaderboard-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            border-bottom: 1px solid #334155;
-            font-size: 13px;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-around;
-            background-color: var(--card-bg);
-            border-top: 1px solid #1e293b;
-            padding: 8px 0;
-        }
-
-        .nav-item {
-            color: var(--text-secondary);
-            font-size: 9px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            flex: 1;
-        }
-
-        .nav-item.active {
-            color: var(--accent-gold);
-            font-weight: bold;
-        }
-    </style>
+    <!-- CSS stylesheet link -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="header" id="user-display">Loading User...</div>
 
-    <!-- 📢 চলমান হেডলাইন -->
     <div class="marquee-container">
         <marquee behavior="scroll" direction="left" scrollamount="5">
-            🚀 <b>এড দেখুন এবং সরাসরি $ ডলার আয় করে ইনস্ট্যান্ট উইথড্র নিন!</b> ডেইলি ক্লেইম, স্পিন হুইল ও অটো-বট থেকে ফ্রি বোনাস পান! 🎁
+            🚀 <b>এড দেখুন এবং সরাসরি $ ডলার আয় করে ইনস্ট্যান্ট উইথড্র নিন!</b> যেকোনো প্রয়োজনে হেল্পলাইনে যোগাযোগ করুন! 🎁
         </marquee>
     </div>
 
     <div class="main-content" id="main-content">
-        <!-- Dual Balance Display -->
         <div class="balance-grid">
-            <div class="balance-card">
+            <div class="balance-card glow-gold">
                 <div class="balance-title">TON Points (Tapping)</div>
                 <div class="balance-value val-ton" id="ton-points">0 ₿</div>
             </div>
-            <div class="balance-card">
+            <div class="balance-card glow-green">
                 <div class="balance-title">Ad Earnings (USD)</div>
                 <div class="balance-value val-usd" id="usd-balance">$0.000</div>
             </div>
@@ -302,57 +53,56 @@
                 </div>
             </div>
 
-            <!-- 📅 Daily Streak Claim -->
-            <div class="card-box" style="text-align:center;">
-                <div style="font-weight:bold; color:var(--accent-gold);">📅 Daily Reward Check-in</div>
-                <p style="font-size:11px; color:var(--text-secondary); margin:4px 0;">প্রতিদিন ক্লেইম করুন <b>+২৫০ TON Points</b>!</p>
+            <div class="card-box text-center">
+                <div class="card-title-gold">📅 Daily Reward Check-in</div>
+                <p class="card-subtext">প্রতিদিন ক্লেইম করুন <b>+২৫০ TON Points</b>!</p>
                 <button class="btn-action" id="daily-btn" onclick="claimDailyReward()">Claim Daily Bonus</button>
             </div>
         </div>
 
-        <!-- 🚀 Boosters & Auto-Bot Tab -->
+        <!-- Boost Tab -->
         <div id="tab-boost" class="tab-content">
             <div class="card-box">
-                <div style="font-size: 16px; font-weight: bold; color: var(--accent-gold);">⚡ Upgrade Tapping</div>
-                <p style="font-size: 12px; color: var(--text-secondary);">প্রতি ট্যাপে পাবেন বেশি পয়েন্ট!</p>
+                <div class="card-title-gold">⚡ Upgrade Tapping</div>
+                <p class="card-subtext">প্রতি ট্যাপে পাবেন বেশি পয়েন্ট!</p>
                 <button class="btn-action" onclick="buyMultitap()">Upgrade Multitap (Cost: 500 ₿)</button>
-                <div style="font-size:11px; margin-top:4px; color:var(--accent-gold)">Current Power: <b id="multitap-lvl">1</b>x Per Tap</div>
+                <div class="status-badge">Current Power: <b id="multitap-lvl">1</b>x Per Tap</div>
             </div>
 
             <div class="card-box">
-                <div style="font-size: 16px; font-weight: bold; color: var(--accent-blue);">🤖 Auto-Tap Bot</div>
-                <p style="font-size: 12px; color: var(--text-secondary);">অফলাইনে থাকলেও পয়েন্ট জমা হতে থাকবে!</p>
+                <div class="card-title-blue">🤖 Auto-Tap Bot</div>
+                <p class="card-subtext">অফলাইনে থাকলেও পয়েন্ট জমা হতে থাকবে!</p>
                 <button class="btn-action btn-blue" id="bot-buy-btn" onclick="buyAutoBot()">Buy Auto-Bot (Cost: 2000 ₿)</button>
                 <button class="btn-action btn-green" id="bot-claim-btn" style="display:none;" onclick="claimBotEarnings()">Claim Bot Earnings</button>
             </div>
         </div>
 
-        <!-- 🏆 Leaderboard / Top 10 Ranks -->
+        <!-- Leaderboard Tab -->
         <div id="tab-lead" class="tab-content">
             <div class="card-box">
-                <div style="font-size: 16px; font-weight: bold; color: var(--accent-gold);">🏆 Top 10 Tappers</div>
+                <div class="card-title-gold">🏆 Top 10 Tappers</div>
                 <ul class="leaderboard-list" id="leaderboard-list">
                     <li>Loading ranks...</li>
                 </ul>
             </div>
         </div>
 
-        <!-- Tasks / Ad Watch Tab -->
+        <!-- Tasks Tab -->
         <div id="tab-tasks" class="tab-content">
             <div class="card-box">
-                <div style="font-size: 16px; font-weight: bold; color: var(--accent-green);">📹 Watch Video Ads</div>
-                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                <div class="card-title-green">📹 Watch Video Ads</div>
+                <p class="card-subtext">
                     প্রতিটি এড দেখার জন্য পাবেন <b>$0.005 USD</b> এবং <b>+100 TON Points</b>!
                 </p>
                 <button class="btn-action btn-green" onclick="watchAdTask()">Watch Video Ad</button>
             </div>
         </div>
 
-        <!-- Withdraw & History Tab -->
+        <!-- Withdraw Tab -->
         <div id="tab-withdraw" class="tab-content">
             <div class="card-box">
-                <div style="font-size: 16px; font-weight: bold; color: var(--accent-green);">💸 Instant Withdraw</div>
-                <p style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">
+                <div class="card-title-green">💸 Instant Withdraw</div>
+                <p class="card-subtext">
                     মিনিমাম উইথড্র: <b>$0.50 USD</b> (Bkash, Nagad, TON Wallet)
                 </p>
                 
@@ -367,29 +117,58 @@
                 <button class="btn-action btn-green" onclick="processWithdrawal()">Submit Request</button>
             </div>
 
-            <!-- 📜 Withdraw History -->
             <div class="card-box">
-                <div style="font-size: 13px; font-weight: bold; color: var(--text-secondary);">📜 Last Request Status</div>
+                <div class="card-subtext" style="font-weight:bold;">📜 Last Request Status</div>
                 <div id="withdraw-history" style="font-size: 12px; color: var(--accent-gold); margin-top: 5px;">None</div>
             </div>
         </div>
 
         <!-- Friends Tab -->
         <div id="tab-ref" class="tab-content">
-            <div class="card-box">
-                <div style="font-size: 16px; font-weight: bold; color: var(--accent-gold);">Invite Friends!</div>
-                <p style="font-size: 12px; color: var(--text-secondary);">
+            <div class="card-box text-center">
+                <div class="card-title-gold">Invite Friends!</div>
+                <p class="card-subtext">
                     Earn <b>+500 TON Points</b> per referral.
                 </p>
-                <div style="margin: 10px 0; font-size: 13px; color: var(--accent-gold);">
+                <div class="status-badge">
                     Total Referrals: <b id="ref-count">0</b>
                 </div>
                 <button class="btn-action" id="share-ref-btn">Share Invite Link</button>
             </div>
         </div>
+
+        <!-- 🎧 Helpline / Support Tab (NEW) -->
+        <div id="tab-help" class="tab-content">
+            <div class="card-box">
+                <div class="card-title-gold">🎧 24/7 Official Helpline</div>
+                <p class="card-subtext">যেকোনো সমস্যা বা উইথড্র সহায়তার জন্য সরাসরি যোগাযোগ করুন:</p>
+                
+                <!-- Contact 1 -->
+                <div class="contact-card">
+                    <div class="contact-name">👨‍💼 Najmul Hoque Forhad</div>
+                    <div class="contact-detail">📞 01913621510</div>
+                    <div class="contact-detail">✉️ najmulh219653@gmail.com</div>
+                    <div class="contact-actions">
+                        <a href="https://wa.me/8801913621510" target="_blank" class="btn-contact btn-whatsapp">WhatsApp</a>
+                        <a href="tel:01913621510" class="btn-contact btn-call">Direct Call</a>
+                    </div>
+                </div>
+
+                <!-- Contact 2 -->
+                <div class="contact-card">
+                    <div class="contact-name">👨‍💼 Sujon</div>
+                    <div class="contact-detail">📞 01992966952</div>
+                    <div class="contact-actions">
+                        <a href="https://wa.me/8801992966952" target="_blank" class="btn-contact btn-whatsapp">WhatsApp</a>
+                        <a href="tel:01992966952" class="btn-contact btn-call">Direct Call</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Bottom Navigation Bar -->
+    <!-- Navigation Bar -->
     <div class="navbar">
         <div class="nav-item active" onclick="switchTab(event, 'earn')"><span>⚡</span><span>Earn</span></div>
         <div class="nav-item" onclick="switchTab(event, 'boost')"><span>🚀</span><span>Boost</span></div>
@@ -397,324 +176,13 @@
         <div class="nav-item" onclick="switchTab(event, 'tasks')"><span>🎯</span><span>Ads</span></div>
         <div class="nav-item" onclick="switchTab(event, 'withdraw')"><span>💳</span><span>Withdraw</span></div>
         <div class="nav-item" onclick="switchTab(event, 'ref')"><span>👥</span><span>Friends</span></div>
+        <div class="nav-item" onclick="switchTab(event, 'help')"><span>🎧</span><span>Helpline</span></div>
     </div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+    <!-- 🟢 Monetag Vignette Banner Script -->
+    <script>(function(s){s.dataset.zone='11834757',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 
-        const SUPABASE_URL = "https://gnqevgdnkwizeegiwsdc.supabase.co";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImducWV2Z2Rua3dpemVlZ2l3c2RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0MDkyMDIsImV4cCI6MjEwNDk4NTIwMn0.W4U4_AhCfmYc4lWAjiIZj1VAGfcFWxBUts4UmjKoHZI";
-        
-        let supabaseClient = window.supabase ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
-        let user = tg.initDataUnsafe?.user || { id: 12345678, username: "TestUser", first_name: "Test" };
-        let startParam = tg.initDataUnsafe?.start_param || "";
-        
-        let currentPoints = 0;
-        let usdBalance = 0.00;
-        let maxEnergy = 500;
-        let currentEnergy = 500;
-        let tapPower = 1;
-        let hasAutoBot = false;
-        let lastDailyClaim = 0;
-
-        const usernameText = user.username ? `@${user.username}` : (user.first_name || 'User');
-        document.getElementById('user-display').innerText = usernameText;
-
-        function switchTab(event, tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-            if(event && event.currentTarget) {
-                event.currentTarget.classList.add('active');
-            }
-
-            if(tabName === 'lead') loadLeaderboard();
-            if(tabName === 'ref') loadReferralCount();
-        }
-
-        async function loadUserData() {
-            if (!supabaseClient) return;
-
-            try {
-                let { data } = await supabaseClient.from('users').select('*').eq('id', user.id).maybeSingle();
-
-                if (data) {
-                    currentPoints = data.points || 0;
-                    usdBalance = parseFloat(data.usd_balance || 0.00);
-                    tapPower = data.tap_power || 1;
-                    hasAutoBot = data.has_autobot || false;
-                    lastDailyClaim = data.last_daily_claim || 0;
-                    
-                    let lastUpdate = data.last_energy_update || Math.floor(Date.now() / 1000);
-                    let now = Math.floor(Date.now() / 1000);
-                    let recovered = Math.floor(now - lastUpdate);
-                    
-                    currentEnergy = Math.min(maxEnergy, (data.energy !== undefined ? data.energy : maxEnergy) + recovered);
-                    
-                    if (hasAutoBot) {
-                        document.getElementById('bot-buy-btn').style.display = 'none';
-                        document.getElementById('bot-claim-btn').style.display = 'block';
-                    }
-
-                    if (data.withdraw_status) {
-                        document.getElementById('withdraw-history').innerText = data.withdraw_status;
-                    }
-
-                    updateUI();
-                } else {
-                    let initialPoints = 0;
-                    let referrerId = null;
-
-                    if (startParam && startParam.startsWith("ref_")) {
-                        referrerId = parseInt(startParam.replace("ref_", ""));
-                        if (referrerId !== user.id) {
-                            initialPoints = 200;
-                            await rewardReferrer(referrerId);
-                        }
-                    }
-
-                    await supabaseClient.from('users').upsert([
-                        { id: user.id, username: usernameText, points: initialPoints, usd_balance: 0.00, referred_by: referrerId, energy: maxEnergy }
-                    ]);
-
-                    currentPoints = initialPoints;
-                    usdBalance = 0.00;
-                    updateUI();
-                }
-            } catch (err) {
-                console.error("Error loading user:", err);
-            }
-        }
-
-        async function rewardReferrer(refId) {
-            try {
-                let { data } = await supabaseClient.from('users').select('points').eq('id', refId).single();
-                if (data) {
-                    await supabaseClient.from('users').update({ points: (data.points || 0) + 500 }).eq('id', refId);
-                }
-            } catch (err) {}
-        }
-
-        async function loadReferralCount() {
-            if (!supabaseClient) return;
-            try {
-                let { count } = await supabaseClient
-                    .from('users')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('referred_by', user.id);
-                
-                document.getElementById('ref-count').innerText = count || 0;
-            } catch (err) {}
-        }
-
-        async function loadLeaderboard() {
-            if (!supabaseClient) return;
-            const listEl = document.getElementById('leaderboard-list');
-            listEl.innerHTML = "<li>Loading ranks...</li>";
-
-            try {
-                let { data } = await supabaseClient
-                    .from('users')
-                    .select('username, points')
-                    .order('points', { ascending: false })
-                    .limit(10);
-
-                if (data && data.length > 0) {
-                    listEl.innerHTML = "";
-                    data.forEach((player, index) => {
-                        listEl.innerHTML += `
-                            <li class="leaderboard-item">
-                                <span>#${index + 1} ${player.username || 'User'}</span>
-                                <span style="color:var(--accent-gold); font-weight:bold;">${player.points || 0} ₿</span>
-                            </li>`;
-                    });
-                } else {
-                    listEl.innerHTML = "<li>No players yet!</li>";
-                }
-            } catch (err) {
-                listEl.innerHTML = "<li>Error loading leaderboard</li>";
-            }
-        }
-
-        function updateUI() {
-            document.getElementById('ton-points').innerText = `${currentPoints} ₿`;
-            document.getElementById('usd-balance').innerText = `$${usdBalance.toFixed(3)}`;
-            document.getElementById('energy-text').innerText = `${currentEnergy} / ${maxEnergy}`;
-            document.getElementById('energy-fill').style.width = `${(currentEnergy / maxEnergy) * 100}%`;
-            document.getElementById('multitap-lvl').innerText = tapPower;
-        }
-
-        // ✨ Floating Tap Animation Function
-        function createTapParticle(x, y) {
-            const particle = document.createElement('div');
-            particle.classList.add('tap-particle');
-            particle.innerText = `+${tapPower}`;
-            
-            particle.style.left = `${x - 15}px`;
-            particle.style.top = `${y - 20}px`;
-
-            document.getElementById('main-content').appendChild(particle);
-
-            setTimeout(() => {
-                particle.remove();
-            }, 1000);
-        }
-
-        const tapBtn = document.getElementById('tap-btn');
-        let saveTimeout;
-
-        tapBtn.addEventListener('click', (e) => {
-            if (currentEnergy >= tapPower) {
-                currentPoints += tapPower;
-                currentEnergy -= tapPower;
-                updateUI();
-
-                // অ্যানিমেশন পজিশন গণনা
-                const rect = tapBtn.getBoundingClientRect();
-                const x = e.clientX || (rect.left + rect.width / 2);
-                const y = e.clientY || (rect.top + rect.height / 2);
-
-                createTapParticle(x, y);
-
-                clearTimeout(saveTimeout);
-                saveTimeout = setTimeout(saveData, 800);
-            }
-        });
-
-        async function saveData() {
-            if (!supabaseClient) return;
-            let nowSec = Math.floor(Date.now() / 1000);
-            await supabaseClient.from('users').upsert({
-                id: user.id,
-                username: usernameText,
-                points: currentPoints,
-                usd_balance: usdBalance,
-                energy: currentEnergy,
-                tap_power: tapPower,
-                has_autobot: hasAutoBot,
-                last_energy_update: nowSec
-            });
-        }
-
-        setInterval(() => {
-            if (currentEnergy < maxEnergy) {
-                currentEnergy += 1;
-                updateUI();
-            }
-        }, 1000);
-
-        async function claimDailyReward() {
-            let now = Math.floor(Date.now() / 1000);
-            if (now - lastDailyClaim < 86400) {
-                alert('⏳ Daily reward already claimed today! Check back tomorrow.');
-                return;
-            }
-            
-            currentPoints += 250;
-            lastDailyClaim = now;
-            updateUI();
-            saveData();
-
-            alert('🎉 Claimed +250 TON Points Daily Reward!');
-        }
-
-        async function buyMultitap() {
-            if (currentPoints < 500) {
-                alert('⚠️ Insufficient TON Points! Need 500 ₿');
-                return;
-            }
-            currentPoints -= 500;
-            tapPower += 1;
-            updateUI();
-            saveData();
-            alert('🚀 Multitap Upgraded! Now getting ' + tapPower + 'x points per tap.');
-        }
-
-        async function buyAutoBot() {
-            if (currentPoints < 2000) {
-                alert('⚠️ Insufficient TON Points! Need 2000 ₿');
-                return;
-            }
-            currentPoints -= 2000;
-            hasAutoBot = true;
-            document.getElementById('bot-buy-btn').style.display = 'none';
-            document.getElementById('bot-claim-btn').style.display = 'block';
-            updateUI();
-            saveData();
-            alert('🤖 Auto-Bot Purchased! It will now mine points for you.');
-        }
-
-        function claimBotEarnings() {
-            let botBonus = Math.floor(Math.random() * 300) + 200;
-            currentPoints += botBonus;
-            updateUI();
-            saveData();
-            alert(`🎉 Auto-Bot mined +${botBonus} TON Points for you!`);
-        }
-
-        function watchAdTask() {
-            if (typeof show_11809090 === 'function') {
-                show_11809090({ ymid: user.id.toString() }).then(() => {
-                    usdBalance += 0.005;
-                    currentPoints += 100;
-                    updateUI();
-                    saveData();
-                    alert('🎉 Earned $0.005 USD and +100 TON Points!');
-                }).catch((err) => {
-                    alert('No ad available right now. Try again later!');
-                });
-            } else {
-                usdBalance += 0.005;
-                currentPoints += 100;
-                updateUI();
-                saveData();
-                alert('Test Ad Completed! Earned $0.005 USD and 100 TON Points.');
-            }
-        }
-
-        async function processWithdrawal() {
-            const method = document.getElementById('withdraw-method').value;
-            const account = document.getElementById('withdraw-account').value.trim();
-
-            if (usdBalance < 0.50) {
-                alert('⚠️ Minimum withdrawal amount is $0.50 USD!');
-                return;
-            }
-
-            if (!account) {
-                alert('⚠️ Please enter account number or wallet address!');
-                return;
-            }
-
-            if(confirm(`Request withdrawal of $${usdBalance.toFixed(2)} to ${method} (${account})?`)) {
-                let currentReq = usdBalance;
-                usdBalance = 0.00;
-                let statusText = `Pending: $${currentReq.toFixed(2)} via ${method} (${account})`;
-                
-                document.getElementById('withdraw-history').innerText = statusText;
-                updateUI();
-
-                await supabaseClient.from('users').upsert({
-                    id: user.id,
-                    username: usernameText,
-                    usd_balance: 0.00,
-                    withdraw_status: statusText
-                });
-
-                alert('✅ Withdrawal Request Submitted Successfully!');
-            }
-        }
-
-        document.getElementById('share-ref-btn').addEventListener('click', () => {
-            const botUsername = "TapToTonEarn_bot"; 
-            const refLink = `https://t.me/${botUsername}?start=ref_${user.id}`;
-            const shareText = `Join TapToTon and earn USD and TON Points instantly! 🚀`;
-            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`);
-        });
-
-        loadUserData();
-    </script>
+    <!-- Main JS logic -->
+    <script src="script.js"></script>
 </body>
 </html>
