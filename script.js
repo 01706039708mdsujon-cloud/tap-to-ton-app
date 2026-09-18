@@ -19,6 +19,30 @@ let lastDailyClaim = 0;
 const usernameText = user.username ? `@${user.username}` : (user.first_name || 'User');
 document.getElementById('user-display').innerText = usernameText;
 
+// 🌟 Generate Fullscreen Floating Particles Dynamically
+function createBackgroundParticles() {
+    const container = document.getElementById('particles-container');
+    const particleCount = 20;
+
+    for (let i = 0; i < particleCount; i++) {
+        let particle = document.createElement('div');
+        particle.classList.add('star-particle');
+
+        let size = Math.random() * 4 + 2;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${Math.random() * 100}vw`;
+
+        let duration = Math.random() * 8 + 6;
+        let delay = Math.random() * 5;
+        particle.style.animationDuration = `${duration}s`;
+        particle.style.animationDelay = `${delay}s`;
+
+        container.appendChild(particle);
+    }
+}
+createBackgroundParticles();
+
 function switchTab(event, tabName) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -156,7 +180,7 @@ function createTapParticle(x, y) {
 
     setTimeout(() => {
         particle.remove();
-    }, 1000);
+    }, 900);
 }
 
 const tapBtn = document.getElementById('tap-btn');
